@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36327.8 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "restapi-crud-practice", "restapi-crud-practice.csproj", "{C86AAA72-B5CA-46C0-A9B0-84DDE7FCC75E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C86AAA72-B5CA-46C0-A9B0-84DDE7FCC75E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C86AAA72-B5CA-46C0-A9B0-84DDE7FCC75E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C86AAA72-B5CA-46C0-A9B0-84DDE7FCC75E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C86AAA72-B5CA-46C0-A9B0-84DDE7FCC75E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6E03F07C-980B-4A79-9D54-578F93410BB5}
+	EndGlobalSection
+EndGlobal
