@@ -17,7 +17,7 @@ namespace restapi_crud_practice.Endpoints
             // GET /Borrows
             group.MapGet("/", (BookBorrowingContext dbContext, IBorrowService borrowService) =>
             {
-                return borrowService.GetAllBorrows();
+                return dbContext.Borrows.Where(borrow => borrow.IsOverdue == true).Include(borrow => borrow.Client).Include(borrow => borrow.Book).Select(borrow => borrow.ToBorrowSummaryDto()).ToListAsync();
             });
 
             // GET/Borrows/{id}
