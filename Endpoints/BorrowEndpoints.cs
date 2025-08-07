@@ -8,15 +8,16 @@ namespace restapi_crud_practice.Endpoints
 {
     public static class BorrowEndpoints
     {
+
         const string GetBorrowEndpointName = "GetBorrow";
         public static RouteGroupBuilder MapBorrowEndpoints(this WebApplication app)
         {
             var group = app.MapGroup("borrows");
 
             // GET /Borrows
-            group.MapGet("/", (BookBorrowingContext dbContext) =>
+            group.MapGet("/", (BookBorrowingContext dbContext, IBorrowService borrowService) =>
             {
-                return dbContext.Borrows.Where(borrow => borrow.IsOverdue == true).Include(borrow => borrow.Client).Include(borrow => borrow.Book).Select(borrow => borrow.ToBorrowSummaryDto()).ToListAsync();
+                return borrowService.GetAllBorrows();
             });
 
             // GET/Borrows/{id}
@@ -53,22 +54,12 @@ namespace restapi_crud_practice.Endpoints
             group.MapPut("/{id}", async (int id, UpdateBorrowDto updatedBorrow, BookBorrowingContext dbContext) =>
             {
                 var existingBorrow = await dbContext.Borrows.FindAsync(id);
-                if (existingBorrow is null)
+                if (existingBorrow is null) return Results.NotFound();
+                var modifiedBorrow = updatedBorrow with
                 {
-                    return Results.NotFound();
-                }
-                if (existingBorrow.ReturnDate is not null)
-                {
-                    if (existingBorrow.BorrowDate.AddMonths(3) < updatedBorrow.ReturnDate)
-                    {
-                        existingBorrow.IsOverdue = true;
-                    }
-                    else
-                    {
-                        existingBorrow.IsOverdue = false;
-                    }
-                }
-                dbContext.Entry(existingBorrow).CurrentValues.SetValues(updatedBorrow.ToEntity(id));
+                    IsOverdue = updatedBorrow.ReturnDate is not null && updatedBorrow.BorrowDate.AddMonths(3) < updatedBorrow.ReturnDate
+                };
+                dbContext.Entry(existingBorrow).CurrentValues.SetValues(modifiedBorrow.ToEntity(id));
                 await dbContext.SaveChangesAsync();
 
                 return Results.NoContent();
@@ -79,6 +70,10 @@ namespace restapi_crud_practice.Endpoints
             {
                 await dbContext.Borrows.Where(borrow => borrow.Id == id).ExecuteDeleteAsync();
                 return Results.NoContent();
+            });
+            group.MapGet("/test", (BookBorrowingContext dbContext, IBorrowService borrowService) =>
+            {
+                return borrowService.GetAllBorrows();
             });
             return group;
         }

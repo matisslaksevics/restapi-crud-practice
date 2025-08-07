@@ -1,14 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using restapi_crud_practice.Data;
 using restapi_crud_practice.Entities;
+using restapi_crud_practice.Mapping;
+using restapi_crud_practice.Dtos.Borrow;
 namespace restapi_crud_practice.Services
 {
     public class BorrowService
     {
-        public async Task<List<Borrow>> GetAllBorrowsAsync(BookBorrowingContext dbContext)
+        private readonly BookBorrowingContext dbContext;
+        public BorrowService(BookBorrowingContext dbContext)
         {
-            return await dbContext.Borrows.ToListAsync();
+            this.dbContext = dbContext;
         }
+        
 
 
     }
