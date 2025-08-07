@@ -9,5 +9,6 @@ namespace restapi_crud_practice.Entities
         public Book? Book { get; set; }
         public DateOnly BorrowDate { get; set; }
         public DateOnly? ReturnDate { get; set; }
+        public bool? IsOverdue { get; set; }
     }
 }

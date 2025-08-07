@@ -5,6 +5,6 @@ public record class BorrowSummaryDto
     string Client,
     string Book,
     DateOnly BorrowDate,
-    DateOnly? ReturnDate
-
+    DateOnly? ReturnDate,
+    bool? IsOverdue
 );

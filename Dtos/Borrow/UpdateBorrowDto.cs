@@ -6,5 +6,6 @@ public record class UpdateBorrowDto
     int ClientId,
     int BookId,
     [Required] DateOnly BorrowDate,
-    DateOnly? ReturnDate
+    DateOnly? ReturnDate,
+    bool? IsOverdue
 );

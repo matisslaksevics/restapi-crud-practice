@@ -12,7 +12,8 @@ namespace restapi_crud_practice.Mapping
                 ClientId = borrow.ClientId,
                 BookId = borrow.BookId,
                 BorrowDate = borrow.BorrowDate,
-                ReturnDate = borrow.ReturnDate
+                ReturnDate = borrow.ReturnDate,
+                IsOverdue = borrow.IsOverdue
             };
         }
         public static BorrowSummaryDto ToBorrowSummaryDto(this Borrow borrow)
@@ -22,7 +23,8 @@ namespace restapi_crud_practice.Mapping
                 borrow.Client!.FirstName,
                 borrow.Book!.BookName,
                 borrow.BorrowDate,
-                borrow.ReturnDate
+                borrow.ReturnDate,
+                borrow.IsOverdue
             );
         }
         public static BorrowDetailsDto ToBorrowDetailsDto(this Borrow borrow)
@@ -32,7 +34,8 @@ namespace restapi_crud_practice.Mapping
                borrow.ClientId,
                borrow.BookId,
                borrow.BorrowDate,
-               borrow.ReturnDate
+               borrow.ReturnDate,
+               borrow.IsOverdue
            );
         }
         public static Borrow ToEntity(this UpdateBorrowDto borrow, int id)
@@ -43,7 +46,8 @@ namespace restapi_crud_practice.Mapping
                 ClientId = borrow.ClientId,
                 BookId = borrow.BookId,
                 BorrowDate = borrow.BorrowDate,
-                ReturnDate = borrow.ReturnDate
+                ReturnDate = borrow.ReturnDate,
+                IsOverdue = borrow.IsOverdue
             };
         }
     }

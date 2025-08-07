@@ -14,12 +14,10 @@ namespace restapi_crud_practice.Endpoints
             var group = app.MapGroup("borrows");
 
             // GET /Borrows
-            group.MapGet("/", (BookBorrowingContext dbContext) => dbContext.Borrows
-            .Include(borrow => borrow.Client)
-            .Include(borrow => borrow.Book)
-            .Select(borrow => borrow
-            .ToBorrowSummaryDto())
-            .ToListAsync());
+            group.MapGet("/", (BookBorrowingContext dbContext) =>
+            {
+                return dbContext.Borrows.Where(borrow => borrow.IsOverdue == true).Include(borrow => borrow.Client).Include(borrow => borrow.Book).Select(borrow => borrow.ToBorrowSummaryDto()).ToListAsync();
+            });
 
             // GET/Borrows/{id}
             group.MapGet("/{id}", async (int id, BookBorrowingContext dbContext) =>
@@ -35,6 +33,17 @@ namespace restapi_crud_practice.Endpoints
                 Borrow borrow = newBorrow.ToEntity();
                 borrow.Client = dbContext.Clients.Find(newBorrow.ClientId);
                 borrow.Book = dbContext.Books.Find(newBorrow.BookId);
+                if (borrow.ReturnDate is not null)
+                {
+                    if (borrow.BorrowDate.AddMonths(3) < borrow.ReturnDate)
+                    {
+                        borrow.IsOverdue = true;
+                    }
+                    else
+                    {
+                        borrow.IsOverdue = false;
+                    }
+                }
                 dbContext.Borrows.Add(borrow);
                 await dbContext.SaveChangesAsync();
                 return Results.CreatedAtRoute(GetBorrowEndpointName, new { id = borrow.Id }, borrow.ToBorrowSummaryDto());
@@ -47,6 +56,17 @@ namespace restapi_crud_practice.Endpoints
                 if (existingBorrow is null)
                 {
                     return Results.NotFound();
+                }
+                if (existingBorrow.ReturnDate is not null)
+                {
+                    if (existingBorrow.BorrowDate.AddMonths(3) < updatedBorrow.ReturnDate)
+                    {
+                        existingBorrow.IsOverdue = true;
+                    }
+                    else
+                    {
+                        existingBorrow.IsOverdue = false;
+                    }
                 }
                 dbContext.Entry(existingBorrow).CurrentValues.SetValues(updatedBorrow.ToEntity(id));
                 await dbContext.SaveChangesAsync();

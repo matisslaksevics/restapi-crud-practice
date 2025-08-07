@@ -5,5 +5,6 @@ public record class BorrowDetailsDto
     int ClientId,
     int BookId,
     DateOnly BorrowDate,
-    DateOnly? ReturnDate
+    DateOnly? ReturnDate,
+    bool? IsOverdue
 );
