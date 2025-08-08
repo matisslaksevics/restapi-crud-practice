@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using restapi_crud_practice.Data;
-using restapi_crud_practice.Mapping;
-using restapi_crud_practice.Services;
+﻿using restapi_crud_practice.Mapping;
 using restapi_crud_practice.Dtos.Client;
-using restapi_crud_practice.Entities;
+using Microsoft.AspNetCore.Mvc;
+using restapi_crud_practice.Services.SClient;
 namespace restapi_crud_practice.Endpoints
 {
     public static class ClientEndpoints
@@ -14,43 +12,33 @@ namespace restapi_crud_practice.Endpoints
             var group = app.MapGroup("clients");
 
             // GET /clients
-            group.MapGet("/", (BookBorrowingContext dbContext) => dbContext.Clients.Select(client => client.ToClientSummaryDto()).ToListAsync());
+            group.MapGet("/", async (IClientService clientService) => await clientService.GetAllClientsAsync());
 
             // GET/clients/{id}
-            group.MapGet("/{id}", async (int id, BookBorrowingContext dbContext) => 
+            group.MapGet("/{id}", async (int id, IClientService clientService) => 
             {
-                Client? client = await dbContext.Clients.FindAsync(id);
+                var client = await clientService.GetClientByIdAsync(id);
                 return client is null ? Results.NotFound() : Results.Ok(client.ToClientDetailsDto());
 
             }).WithName(GetClientEndpointName);
 
             // POST /clients
-            group.MapPost("/", async (CreateClientDto newClient, BookBorrowingContext dbContext) => 
+            group.MapPost("/", async ([FromBody]CreateClientDto newClient, [FromServices]IClientService clientService) => 
             { 
-                Client client = newClient.ToEntity();
-                dbContext.Clients.Add(client);
-                await dbContext.SaveChangesAsync();
-                return Results.CreatedAtRoute(GetClientEndpointName, new { id = client.Id }, client.ToClientSummaryDto());
+                var createdClient = await clientService.CreateClientAsync(newClient);
+                return Results.CreatedAtRoute(GetClientEndpointName, new { id = createdClient.Id }, createdClient);
             });
 
             // PUT /clients/{id}
-            group.MapPut("/{id}", async (int id, UpdateClientDto updatedClient, BookBorrowingContext dbContext) =>
+            group.MapPut("/{id}", async (int id, [FromBody]UpdateClientDto updatedClient, [FromServices]IClientService clientService) =>
             {
-                var existingClient = await dbContext.Clients.FindAsync(id);
-                if (existingClient is null)
-                {
-                    return Results.NotFound();
-                }
-                dbContext.Entry(existingClient).CurrentValues.SetValues(updatedClient.ToEntity(id));
-                await dbContext.SaveChangesAsync();
-
-                return Results.NoContent();
+                return await clientService.UpdateClientAsync(id, updatedClient) ? Results.NoContent() : Results.NotFound();
             });
 
             // DELETE /clients/{id}
-            group.MapDelete("/{id}", async (int id, BookBorrowingContext dbContext) => 
+            group.MapDelete("/{id}", async (int id, IClientService clientService) => 
             {
-                await dbContext.Clients.Where(client => client.Id == id).ExecuteDeleteAsync();
+                await clientService.DeleteClientAsync(id);
                 return Results.NoContent();
             });
             return group;

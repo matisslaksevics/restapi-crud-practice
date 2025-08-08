@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using restapi_crud_practice.Data;
-using restapi_crud_practice.Mapping;
-using restapi_crud_practice.Services;
+﻿using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Dtos.Book;
-using restapi_crud_practice.Entities;
+using restapi_crud_practice.Mapping;
+using restapi_crud_practice.Services.SBook;
+using System.Net;
 namespace restapi_crud_practice.Endpoints
 {
     public static class BookEndpoints
@@ -14,43 +13,33 @@ namespace restapi_crud_practice.Endpoints
             var group = app.MapGroup("books");
 
             // GET /Books
-            group.MapGet("/", (BookBorrowingContext dbContext) => dbContext.Books.Select(book => book.ToBookSummaryDto()).ToListAsync());
+            group.MapGet("/", async (IBookService bookService) => await bookService.GetAllBooksAsync());
 
             // GET/Books/{id}
-            group.MapGet("/{id}", async (int id, BookBorrowingContext dbContext) =>
+            group.MapGet("/{id}", async (int id, IBookService bookService) =>
             {
-                Book? book = await dbContext.Books.FindAsync(id);
+                var book = await bookService.GetBookByIdAsync(id);
                 return book is null ? Results.NotFound() : Results.Ok(book.ToBookDetailsDto());
 
             }).WithName(GetBookEndpointName);
 
             // POST /Books
-            group.MapPost("/", async (CreateBookDto newBook, BookBorrowingContext dbContext) =>
+            group.MapPost("/", async ([FromBody]CreateBookDto newBook, [FromServices]IBookService bookService) =>
             {
-                Book book = newBook.ToEntity();
-                dbContext.Books.Add(book);
-                await dbContext.SaveChangesAsync();
-                return Results.CreatedAtRoute(GetBookEndpointName, new { id = book.Id }, book.ToBookSummaryDto());
+                var createdBook = await bookService.CreateBookAsync(newBook);
+                return Results.CreatedAtRoute(GetBookEndpointName, new { id = createdBook.Id }, createdBook);
             });
 
             // PUT /Books/{id}
-            group.MapPut("/{id}", async (int id, UpdateBookDto updatedBook, BookBorrowingContext dbContext) =>
+            group.MapPut("/{id}", async (int id, [FromBody]UpdateBookDto updatedBook, [FromServices]IBookService bookService) =>
             {
-                var existingBook = await dbContext.Books.FindAsync(id);
-                if (existingBook is null)
-                {
-                    return Results.NotFound();
-                }
-                dbContext.Entry(existingBook).CurrentValues.SetValues(updatedBook.ToEntity(id));
-                await dbContext.SaveChangesAsync();
-
-                return Results.NoContent();
+                return await bookService.UpdateBookAsync(id, updatedBook) ? Results.NoContent() : Results.NotFound();
             });
 
             // DELETE /Books/{id}
-            group.MapDelete("/{id}", async (int id, BookBorrowingContext dbContext) =>
+            group.MapDelete("/{id}", async (int id, IBookService bookService) =>
             {
-                await dbContext.Books.Where(book => book.Id == id).ExecuteDeleteAsync();
+                await bookService.DeleteBookAsync(id);
                 return Results.NoContent();
             });
             return group;
