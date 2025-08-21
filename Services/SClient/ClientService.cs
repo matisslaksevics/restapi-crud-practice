@@ -37,10 +37,14 @@ namespace restapi_crud_practice.Services.SClient
             await dbContext.SaveChangesAsync();
             return true;
         }
-        public async Task<int> DeleteClientAsync(int id)
-        {
-            var response = await dbContext.Clients.Where(client => client.Id == id).ExecuteDeleteAsync();
-            return response;
+        public async Task<bool> DeleteClientAsync(int id)
+        { 
+            var cmd = await dbContext.Clients.Where(client => client.Id == id).ExecuteDeleteAsync();
+            if (cmd != 0)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

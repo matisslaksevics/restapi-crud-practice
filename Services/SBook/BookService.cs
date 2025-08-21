@@ -37,10 +37,14 @@ namespace restapi_crud_practice.Services.SBook
             await dbContext.SaveChangesAsync();
             return true;
         }
-        public async Task<int> DeleteBookAsync(int id)
+        public async Task<bool> DeleteBookAsync(int id)
         {
-            var response = await dbContext.Books.Where(book => book.Id == id).ExecuteDeleteAsync();
-            return response;
+            var cmd = await dbContext.Books.Where(book => book.Id == id).ExecuteDeleteAsync();
+            if (cmd != 0)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

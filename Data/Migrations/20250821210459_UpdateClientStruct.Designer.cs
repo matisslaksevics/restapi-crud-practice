@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using restapi_crud_practice.Data;
@@ -11,9 +12,11 @@ using restapi_crud_practice.Data;
 namespace restapi_crud_practice.Data.Migrations
 {
     [DbContext(typeof(BookBorrowingContext))]
-    partial class BookBorrowingContextModelSnapshot : ModelSnapshot
+    [Migration("20250821210459_UpdateClientStruct")]
+    partial class UpdateClientStruct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

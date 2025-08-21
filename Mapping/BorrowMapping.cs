@@ -20,7 +20,7 @@ namespace restapi_crud_practice.Mapping
         {
             return new(
                 borrow.Id,
-                borrow.Client!.FirstName,
+                borrow.Client!.Username,
                 borrow.Book!.BookName,
                 borrow.BorrowDate,
                 borrow.ReturnDate,

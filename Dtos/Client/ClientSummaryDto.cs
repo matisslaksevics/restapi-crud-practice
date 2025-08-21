@@ -3,8 +3,8 @@
 public record class ClientSummaryDto
 (
     int Id,
-    string FirstName,
-    string LastName,
-    string Email
+    string Username,
+    string Role,
+    DateTime PasswordChangedAt
 );
 

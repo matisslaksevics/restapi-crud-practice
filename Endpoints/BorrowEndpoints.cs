@@ -1,47 +1,46 @@
-﻿using restapi_crud_practice.Mapping;
+﻿using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Dtos.Borrow;
+using restapi_crud_practice.Mapping;
 using restapi_crud_practice.Services.SBorrow;
 namespace restapi_crud_practice.Endpoints
 {
-    public static class BorrowEndpoints
+    [Route("[controller]")]
+    [ApiController]
+    public class BorrowEndpoints(IBorrowService borrowService) : ControllerBase
     {
-
         const string GetBorrowEndpointName = "GetBorrow";
-        public static RouteGroupBuilder MapBorrowEndpoints(this WebApplication app)
+        // GET /Borrows
+        [HttpGet]
+        public async Task<ActionResult<List<BorrowSummaryDto>>> GetAllBorrows() => await borrowService.GetAllBorrowsAsync();
+
+        // GET/Borrows/{id}
+        [HttpGet("{id}", Name = GetBorrowEndpointName)]
+        public async Task<ActionResult<BorrowDetailsDto>> GetBorrowById(int id)
         {
-            var group = app.MapGroup("borrows");
+            var borrow = await borrowService.GetBorrowByIdAsync(id);
+            return borrow is null ? NotFound() : Ok(borrow.ToBorrowDetailsDto());
+        }
 
-            // GET /Borrows
-            group.MapGet("/", async (IBorrowService borrowService) => await borrowService.GetAllBorrowsAsync());
+        // POST /Borrows
+        [HttpPost]
+        public async Task<ActionResult<BorrowSummaryDto>> CreateBorrow([FromBody] CreateBorrowDto newBorrow)
+        {
+            var createdBorrow = await borrowService.CreateBorrowAsync(newBorrow);
+            return CreatedAtRoute(GetBorrowEndpointName, new { id = createdBorrow.Id }, createdBorrow);
+        }
 
-            // GET/Borrows/{id}
-            group.MapGet("/{id}", async (int id, IBorrowService borrowService) =>
-            {
-                var borrow = await borrowService.GetBorrowByIdAsync(id);
-                return borrow is null ? Results.NotFound() : Results.Ok(borrow.ToBorrowDetailsDto());
+        // PUT /Borrows/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBorrow(int id, [FromBody] UpdateBorrowDto updatedBorrow)
+        {
+            return await borrowService.UpdateBorrowAsync(id, updatedBorrow) ? NoContent() : NotFound();
+        }
 
-            }).WithName(GetBorrowEndpointName);
-
-            // POST /Borrows
-            group.MapPost("/", async (CreateBorrowDto newBorrow, IBorrowService borrowService) =>
-            {
-                var createdBorrow = await borrowService.CreateBorrowAsync(newBorrow);
-                return Results.CreatedAtRoute(GetBorrowEndpointName, new { id = createdBorrow.Id }, createdBorrow);
-            });
-
-            // PUT /Borrows/{id}
-            group.MapPut("/{id}", async (int id, UpdateBorrowDto updatedBorrow, IBorrowService borrowService) =>
-            {
-                return await borrowService.UpdateBorrowAsync(id, updatedBorrow) ? Results.NoContent() : Results.NotFound();
-            });
-
-            // DELETE /Borrows/{id}
-            group.MapDelete("/{id}", async (int id, IBorrowService borrowService) =>
-            {
-                await borrowService.DeleteBorrowAsync(id);
-                return Results.NoContent();
-            });
-            return group;
+        // DELETE /Borrows/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBorrow(int id) 
+        {
+            return await borrowService.DeleteBorrowAsync(id) ? NoContent() : NotFound();
         }
     }
 }

@@ -55,10 +55,14 @@ namespace restapi_crud_practice.Services.SBorrow
             await dbContext.SaveChangesAsync();
             return true;
         }
-        public async Task<int> DeleteBorrowAsync(int id)
+        public async Task<bool> DeleteBorrowAsync(int id)
         {
-            var response = await dbContext.Borrows.Where(borrow => borrow.Id == id).ExecuteDeleteAsync();
-            return response;
+            var cmd = await dbContext.Borrows.Where(borrow => borrow.Id == id).ExecuteDeleteAsync();
+            if (cmd != 0)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

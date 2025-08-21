@@ -1,47 +1,46 @@
-﻿using restapi_crud_practice.Mapping;
+﻿ using restapi_crud_practice.Mapping;
 using restapi_crud_practice.Dtos.Client;
 using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Services.SClient;
 namespace restapi_crud_practice.Endpoints
 {
-    public static class ClientEndpoints
-    {
+    [Route("[controller]")]
+    [ApiController]
+    public class ClientEndpoints(IClientService clientService) : ControllerBase
+    { 
         const string GetClientEndpointName = "GetClient";
-        public static RouteGroupBuilder MapClientEndpoints(this WebApplication app)
+
+        // GET /clients
+        [HttpGet]
+        public async Task<ActionResult<List<ClientSummaryDto>>> GetAllClients() => await clientService.GetAllClientsAsync();
+
+        // GET/clients/{id}
+        [HttpGet("{id}", Name = GetClientEndpointName)]
+        public async Task<ActionResult<ClientDetailsDto>> GetClientById(int id)
         {
-            var group = app.MapGroup("clients");
+            var client = await clientService.GetClientByIdAsync(id);
+            return client is null ? NotFound() : Ok(client.ToClientDetailsDto());
+        }
 
-            // GET /clients
-            group.MapGet("/", async (IClientService clientService) => await clientService.GetAllClientsAsync());
+        // POST /clients
+        [HttpPost]
+        public async Task<ActionResult<ClientSummaryDto>> CreateClient([FromBody] CreateClientDto newClient)
+        {
+            var createdClient = await clientService.CreateClientAsync(newClient);
+            return CreatedAtRoute(GetClientEndpointName, new { id = createdClient.Id }, createdClient);
+        }
 
-            // GET/clients/{id}
-            group.MapGet("/{id}", async (int id, IClientService clientService) => 
-            {
-                var client = await clientService.GetClientByIdAsync(id);
-                return client is null ? Results.NotFound() : Results.Ok(client.ToClientDetailsDto());
-
-            }).WithName(GetClientEndpointName);
-
-            // POST /clients
-            group.MapPost("/", async ([FromBody]CreateClientDto newClient, [FromServices]IClientService clientService) => 
-            { 
-                var createdClient = await clientService.CreateClientAsync(newClient);
-                return Results.CreatedAtRoute(GetClientEndpointName, new { id = createdClient.Id }, createdClient);
-            });
-
-            // PUT /clients/{id}
-            group.MapPut("/{id}", async (int id, [FromBody]UpdateClientDto updatedClient, [FromServices]IClientService clientService) =>
-            {
-                return await clientService.UpdateClientAsync(id, updatedClient) ? Results.NoContent() : Results.NotFound();
-            });
-
-            // DELETE /clients/{id}
-            group.MapDelete("/{id}", async (int id, IClientService clientService) => 
-            {
-                await clientService.DeleteClientAsync(id);
-                return Results.NoContent();
-            });
-            return group;
+        // PUT /clients/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateClient(int id, [FromBody] UpdateClientDto updatedClient)
+        {
+            return await clientService.UpdateClientAsync(id, updatedClient) ? NoContent() : NotFound();
+        }
+        // DELETE /clients/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteClient(int id)
+        { 
+            return await clientService.DeleteClientAsync(id) ? NoContent() : NotFound();
         }
     }
 }
