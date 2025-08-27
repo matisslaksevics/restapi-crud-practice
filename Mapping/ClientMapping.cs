@@ -32,7 +32,7 @@ namespace restapi_crud_practice.Mapping
                 client.PasswordChangedAt
             );
         }
-        public static Client ToEntity(this UpdateClientDto client, int id)
+        public static Client ToEntity(this UpdateClientDto client, Guid id)
         {
             return new Client()
             {

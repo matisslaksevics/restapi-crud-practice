@@ -9,11 +9,11 @@ using restapi_crud_practice.Data;
 
 #nullable disable
 
-namespace restapi_crud_practice.Data.Migrations
+namespace restapi_crud_practice.Migrations
 {
     [DbContext(typeof(BookBorrowingContext))]
-    [Migration("20250821210459_UpdateClientStruct")]
-    partial class UpdateClientStruct
+    [Migration("20250827212601_ClientEntityFix")]
+    partial class ClientEntityFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,8 +59,8 @@ namespace restapi_crud_practice.Data.Migrations
                     b.Property<DateOnly>("BorrowDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("ClientId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool?>("IsOverdue")
                         .HasColumnType("boolean");
@@ -79,11 +79,9 @@ namespace restapi_crud_practice.Data.Migrations
 
             modelBuilder.Entity("restapi_crud_practice.Entities.Client", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("PasswordChangedAt")
                         .HasColumnType("timestamp with time zone");

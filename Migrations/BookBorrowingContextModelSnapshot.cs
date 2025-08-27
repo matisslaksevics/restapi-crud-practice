@@ -2,21 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using restapi_crud_practice.Data;
 
 #nullable disable
 
-namespace restapi_crud_practice.Data.Migrations
+namespace restapi_crud_practice.Migrations
 {
     [DbContext(typeof(BookBorrowingContext))]
-    [Migration("20250806191231_UpdatedStructure")]
-    partial class UpdatedStructure
+    partial class BookBorrowingContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,8 +56,11 @@ namespace restapi_crud_practice.Data.Migrations
                     b.Property<DateOnly>("BorrowDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("ClientId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool?>("IsOverdue")
+                        .HasColumnType("boolean");
 
                     b.Property<DateOnly?>("ReturnDate")
                         .HasColumnType("date");
@@ -76,21 +76,31 @@ namespace restapi_crud_practice.Data.Migrations
 
             modelBuilder.Entity("restapi_crud_practice.Entities.Client", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("PasswordChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PasswordMaxAgeDays")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text");
 
-                    b.Property<string>("Email")
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
 

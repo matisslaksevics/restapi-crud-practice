@@ -17,7 +17,7 @@ namespace restapi_crud_practice.Services.SClient
             return await dbContext.Clients.Select(client => client.ToClientSummaryDto()).ToListAsync();
         }
 
-        public async Task<Client?> GetClientByIdAsync(int id)
+        public async Task<Client?> GetClientByIdAsync(Guid id)
         {
             Client? client = await dbContext.Clients.FindAsync(id);
             return client;
@@ -29,7 +29,7 @@ namespace restapi_crud_practice.Services.SClient
             await dbContext.SaveChangesAsync();
             return client.ToClientSummaryDto();
         }
-        public async Task<bool> UpdateClientAsync(int id, UpdateClientDto updatedClient)
+        public async Task<bool> UpdateClientAsync(Guid id, UpdateClientDto updatedClient)
         {
             var existingClient = await dbContext.Clients.FindAsync(id);
             if (existingClient is null) return false;
@@ -37,7 +37,7 @@ namespace restapi_crud_practice.Services.SClient
             await dbContext.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> DeleteClientAsync(int id)
+        public async Task<bool> DeleteClientAsync(Guid id)
         { 
             var cmd = await dbContext.Clients.Where(client => client.Id == id).ExecuteDeleteAsync();
             if (cmd != 0)

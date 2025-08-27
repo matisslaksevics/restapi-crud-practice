@@ -2,7 +2,7 @@
 
 public record class ClientSummaryDto
 (
-    int Id,
+    Guid Id,
     string Username,
     string Role,
     DateTime PasswordChangedAt

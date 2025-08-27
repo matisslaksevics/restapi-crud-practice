@@ -16,7 +16,7 @@ namespace restapi_crud_practice.Endpoints
 
         // GET/clients/{id}
         [HttpGet("{id}", Name = GetClientEndpointName)]
-        public async Task<ActionResult<ClientDetailsDto>> GetClientById(int id)
+        public async Task<ActionResult<ClientDetailsDto>> GetClientById(Guid id)
         {
             var client = await clientService.GetClientByIdAsync(id);
             return client is null ? NotFound() : Ok(client.ToClientDetailsDto());
@@ -32,13 +32,13 @@ namespace restapi_crud_practice.Endpoints
 
         // PUT /clients/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateClient(int id, [FromBody] UpdateClientDto updatedClient)
+        public async Task<IActionResult> UpdateClient(Guid id, [FromBody] UpdateClientDto updatedClient)
         {
             return await clientService.UpdateClientAsync(id, updatedClient) ? NoContent() : NotFound();
         }
         // DELETE /clients/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteClient(int id)
+        public async Task<IActionResult> DeleteClient(Guid id)
         { 
             return await clientService.DeleteClientAsync(id) ? NoContent() : NotFound();
         }

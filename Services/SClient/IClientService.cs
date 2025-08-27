@@ -6,9 +6,9 @@ namespace restapi_crud_practice.Services.SClient
     public interface IClientService
     {
         Task<List<ClientSummaryDto>> GetAllClientsAsync();
-        Task<Client?> GetClientByIdAsync(int id);
+        Task<Client?> GetClientByIdAsync(Guid id);
         Task<ClientSummaryDto> CreateClientAsync(CreateClientDto newClient);
-        Task<bool> UpdateClientAsync(int id, UpdateClientDto updatedClient);
-        Task<bool> DeleteClientAsync(int id);
+        Task<bool> UpdateClientAsync(Guid id, UpdateClientDto updatedClient);
+        Task<bool> DeleteClientAsync(Guid id);
     }
 }
