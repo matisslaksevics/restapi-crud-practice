@@ -21,6 +21,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
 	<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
+	<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
   </ItemGroup>
 
 </Project>
