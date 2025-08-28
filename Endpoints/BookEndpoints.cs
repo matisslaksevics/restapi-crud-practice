@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Dtos.Book;
 using restapi_crud_practice.Mapping;
 using restapi_crud_practice.Services.SBook;
-using restapi_crud_practice.Services.SClient;
 namespace restapi_crud_practice.Endpoints
 {
     [Route("[controller]")]
@@ -12,10 +12,12 @@ namespace restapi_crud_practice.Endpoints
         const string GetBookEndpointName = "GetBook";
 
         // GET /Books
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<BookSummaryDto>>> GetAllBooks() => await bookService.GetAllBooksAsync();
 
         // GET/Books/{id}
+        [Authorize]
         [HttpGet("{id}", Name = GetBookEndpointName)]
         public async Task<ActionResult<BookDetailsDto>> GetBookById(int id)
         {
@@ -24,7 +26,8 @@ namespace restapi_crud_practice.Endpoints
         }
 
         // POST /Books
-        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [HttpPost("admin/new-book")]
         public async Task<ActionResult<BookSummaryDto>> CreateBook([FromBody] CreateBookDto newBook) 
         { 
             var createdBook = await bookService.CreateBookAsync(newBook);
@@ -32,14 +35,16 @@ namespace restapi_crud_practice.Endpoints
         }
 
         // PUT /Books/{id}
-        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("admin/update-book/{id}")]
         public async Task<IActionResult> UpdateBook(int id, [FromBody] UpdateBookDto updatedBook)
         {
             return await bookService.UpdateBookAsync(id, updatedBook) ? NoContent() : NotFound();
         }
 
         // DELETE /Books/{id}
-        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("admin/delete-book/{id}")]
         public async Task<IActionResult> DeleteBook(int id) 
         {
             return await bookService.DeleteBookAsync(id) ? NoContent() : NotFound();

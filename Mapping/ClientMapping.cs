@@ -38,8 +38,7 @@ namespace restapi_crud_practice.Mapping
             {
                 Id = id,
                 Username = client.Username,
-                Role = client.Role,
-                PasswordChangedAt = client.PasswordChangedAt
+                Role = client.Role
             };
         }
     }

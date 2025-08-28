@@ -16,6 +16,16 @@ namespace restapi_crud_practice.Mapping
                 IsOverdue = borrow.IsOverdue
             };
         }
+        public static Borrow ToEntity(this CreateBorrowUserDto borrow)
+        {
+            return new Borrow()
+            {
+                BookId = borrow.BookId,
+                BorrowDate = borrow.BorrowDate,
+                ReturnDate = borrow.ReturnDate,
+                IsOverdue = borrow.IsOverdue
+            };
+        }
         public static BorrowSummaryDto ToBorrowSummaryDto(this Borrow borrow)
         {
             return new(

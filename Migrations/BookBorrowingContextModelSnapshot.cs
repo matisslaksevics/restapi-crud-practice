@@ -39,7 +39,7 @@ namespace restapi_crud_practice.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("restapi_crud_practice.Entities.Borrow", b =>
@@ -71,7 +71,7 @@ namespace restapi_crud_practice.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("Borrows");
+                    b.ToTable("Borrows", (string)null);
                 });
 
             modelBuilder.Entity("restapi_crud_practice.Entities.Client", b =>
@@ -106,7 +106,7 @@ namespace restapi_crud_practice.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("restapi_crud_practice.Entities.Borrow", b =>

@@ -15,7 +15,7 @@ namespace restapi_crud_practice.Services.SBorrow
         }
         public async Task<List<BorrowSummaryDto>> GetAllBorrowsAsync()
         {
-            return await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true).Include(borrow => borrow.Client).Include(borrow => borrow.Book).Select(borrow => borrow.ToBorrowSummaryDto()).ToListAsync(); ;
+            return await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true).Include(borrow => borrow.Client).Include(borrow => borrow.Book).Select(borrow => borrow.ToBorrowSummaryDto()).ToListAsync();
         }
 
         public async Task<Borrow?> GetBorrowByIdAsync(int id)
@@ -23,11 +23,43 @@ namespace restapi_crud_practice.Services.SBorrow
             Borrow? borrow = await dbContext.Borrows.FindAsync(id);
             return borrow;
         }
-        public async Task<BorrowSummaryDto> CreateBorrowAsync(CreateBorrowDto newBorrow)
+
+        public async Task<List<BorrowSummaryDto>> GetAllClientBorrowsAsync(Guid userId) 
+        {
+            return await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true)
+                .Where(borrow => borrow.ClientId == userId)
+                .Include(borrow => borrow.Client)
+                .Include(borrow => borrow.Book)
+                .Select(borrow => borrow
+                .ToBorrowSummaryDto())
+                .ToListAsync();
+        }
+        public async Task<BorrowSummaryDto> AdminCreateBorrowAsync(CreateBorrowDto newBorrow)
         { 
             var borrow = newBorrow.ToEntity();
-            borrow.Client = dbContext.Clients.Find(newBorrow.ClientId);
-            borrow.Book = dbContext.Books.Find(newBorrow.BookId);
+            borrow.Client = await dbContext.Clients.FindAsync(newBorrow.ClientId);
+            borrow.Book = await dbContext.Books.FindAsync(newBorrow.BookId);
+            if (borrow.ReturnDate is not null)
+            {
+                if (borrow.BorrowDate.AddMonths(3) < borrow.ReturnDate)
+                {
+                    borrow.IsOverdue = true;
+                }
+                else
+                {
+                    borrow.IsOverdue = false;
+                }
+            }
+            dbContext.Borrows.Add(borrow);
+            await dbContext.SaveChangesAsync();
+            return borrow.ToBorrowSummaryDto();
+        }
+
+        public async Task<BorrowSummaryDto> CreateBorrowAsync(CreateBorrowDto newBorrow, Guid ClientId)
+        {
+            var borrow = newBorrow.ToEntity();
+            borrow.Client = await dbContext.Clients.FirstOrDefaultAsync(u => u.Id == ClientId);
+            borrow.Book = await dbContext.Books.FindAsync(newBorrow.BookId);
             if (borrow.ReturnDate is not null)
             {
                 if (borrow.BorrowDate.AddMonths(3) < borrow.ReturnDate)
