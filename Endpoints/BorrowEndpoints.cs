@@ -45,7 +45,7 @@ namespace restapi_crud_practice.Endpoints
         // POST/Borrows
         [Authorize]
         [HttpPost("new-borrow")]
-        public async Task<ActionResult<BorrowSummaryDto>> CreateBorrow([FromBody] CreateBorrowDto newBorrow)
+        public async Task<ActionResult<BorrowSummaryDto>> CreateBorrow([FromBody] CreateUserBorrowDto newBorrow)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (userId == null || !Guid.TryParse(userId, out var clientId))

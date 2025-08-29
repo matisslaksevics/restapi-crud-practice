@@ -16,7 +16,7 @@ namespace restapi_crud_practice.Mapping
                 IsOverdue = borrow.IsOverdue
             };
         }
-        public static Borrow ToEntity(this CreateBorrowUserDto borrow)
+        public static Borrow ToEntity(this CreateUserBorrowDto borrow)
         {
             return new Borrow()
             {

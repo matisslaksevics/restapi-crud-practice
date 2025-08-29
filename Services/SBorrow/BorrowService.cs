@@ -55,7 +55,7 @@ namespace restapi_crud_practice.Services.SBorrow
             return borrow.ToBorrowSummaryDto();
         }
 
-        public async Task<BorrowSummaryDto> CreateBorrowAsync(CreateBorrowDto newBorrow, Guid ClientId)
+        public async Task<BorrowSummaryDto> CreateBorrowAsync(CreateUserBorrowDto newBorrow, Guid ClientId)
         {
             var borrow = newBorrow.ToEntity();
             borrow.Client = await dbContext.Clients.FirstOrDefaultAsync(u => u.Id == ClientId);

@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace restapi_crud_practice.Dtos.Borrow;
-public record class CreateBorrowDto
+public record class CreateUserBorrowDto
 {
-    public Guid ClientId {get; set;}
     public int BookId { get; set; }
     public required DateOnly BorrowDate { get; set; }
     public DateOnly? ReturnDate { get; set; }
