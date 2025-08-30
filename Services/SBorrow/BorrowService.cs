@@ -24,7 +24,7 @@ namespace restapi_crud_practice.Services.SBorrow
             return borrow;
         }
 
-        public async Task<List<BorrowSummaryDto>> GetAllClientBorrowsAsync(Guid userId) 
+        public async Task<List<BorrowSummaryDto>> GetAllClientBorrowsAsync(Guid? userId) 
         {
             return await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true)
                 .Where(borrow => borrow.ClientId == userId)
@@ -55,7 +55,7 @@ namespace restapi_crud_practice.Services.SBorrow
             return borrow.ToBorrowSummaryDto();
         }
 
-        public async Task<BorrowSummaryDto> CreateBorrowAsync(CreateUserBorrowDto newBorrow, Guid ClientId)
+        public async Task<BorrowSummaryDto> CreateBorrowAsync(CreateUserBorrowDto newBorrow, Guid? ClientId)
         {
             var borrow = newBorrow.ToEntity();
             borrow.Client = await dbContext.Clients.FirstOrDefaultAsync(u => u.Id == ClientId);

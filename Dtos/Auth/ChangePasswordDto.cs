@@ -1,4 +1,4 @@
-﻿namespace JwtAuthDotNet9.Dtos.Auth 
+﻿namespace restapi_crud_practice.Dtos.Auth
 {
     public class ChangePasswordDto
     {

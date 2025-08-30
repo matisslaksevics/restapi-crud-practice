@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Dtos.Book;
 using restapi_crud_practice.Mapping;
 using restapi_crud_practice.Services.SBook;
-namespace restapi_crud_practice.Endpoints
+namespace restapi_crud_practice.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class BookEndpoints(IBookService bookService) : ControllerBase
+    public class BookController(IBookService bookService) : ControllerBase
     {
         const string GetBookEndpointName = "GetBook";
 

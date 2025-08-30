@@ -1,11 +1,12 @@
-﻿using restapi_crud_practice.Entities;
-using JwtAuthDotNet9.Dtos.Auth;
-using JwtAuthDotNet9.Services.SAuth;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using restapi_crud_practice.Dtos.Auth;
+using restapi_crud_practice.Entities;
+using restapi_crud_practice.Helpers;
+using restapi_crud_practice.Services.SAuth;
 
-namespace JwtAuthDotNet9.Controllers
+
+namespace restapi_crud_practice.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -36,11 +37,10 @@ namespace JwtAuthDotNet9.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
-            var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(idStr, out var userId))
-                return Unauthorized("Could not determine user from token.");
+            var clientId = UserHelper.GetUserId(User);
+            if (clientId == null) return Unauthorized("Could not determine user from token.");
 
-            var result = await authService.RefreshTokensAsync(userId, request.RefreshToken);
+            var result = await authService.RefreshTokensAsync(clientId, request.RefreshToken);
             if (result is null)
                 return Unauthorized("Invalid refresh token.");
 
@@ -74,10 +74,10 @@ namespace JwtAuthDotNet9.Controllers
         [HttpPost("check-password")]
         public async Task<IActionResult> CheckPassword()
         {
-            var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(idStr, out var userId)) return Unauthorized();
+            var clientId = UserHelper.GetUserId(User);
+            if (clientId == null) return Unauthorized("Could not determine user from token.");
 
-            var status = await authService.CheckPasswordAsync(userId);
+            var status = await authService.CheckPasswordAsync(clientId);
             if (status is null) return NotFound();
 
             return Ok(status);
@@ -88,10 +88,10 @@ namespace JwtAuthDotNet9.Controllers
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto body)
         {
-            var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(idStr, out var userId)) return Unauthorized();
+            var clientId = UserHelper.GetUserId(User);
+            if (clientId == null) return Unauthorized("Could not determine user from token.");
 
-            var changed = await authService.ChangePasswordAsync(userId, body.CurrentPassword, body.NewPassword);
+            var changed = await authService.ChangePasswordAsync(clientId, body.CurrentPassword, body.NewPassword);
             if (!changed) return BadRequest("Current password is incorrect.");
 
             return NoContent();
@@ -102,10 +102,10 @@ namespace JwtAuthDotNet9.Controllers
         [HttpPost("signout")]
         public async Task<IActionResult> NewSignOut()
         {
-            var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(idStr, out var userId)) return Unauthorized();
+            var clientId = UserHelper.GetUserId(User);
+            if (clientId == null) return Unauthorized("Could not determine user from token.");
 
-            await authService.SignOutAsync(userId);
+            await authService.SignOutAsync(clientId);
             return NoContent();
         }
 
@@ -114,10 +114,10 @@ namespace JwtAuthDotNet9.Controllers
         [HttpPost("profile")]
         public async Task<ActionResult<UserProfileDto>> CheckProfile()
         {
-            var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(idStr, out var userId)) return Unauthorized();
+            var clientId = UserHelper.GetUserId(User);
+            if (clientId == null) return Unauthorized("Could not determine user from token.");
 
-            var result = await authService.GetProfileAsync(userId);
+            var result = await authService.GetProfileAsync(clientId);
             return Ok(result);
         }
 

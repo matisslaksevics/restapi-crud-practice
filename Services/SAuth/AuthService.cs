@@ -1,6 +1,6 @@
 ﻿using restapi_crud_practice.Data;
 using restapi_crud_practice.Entities;
-using JwtAuthDotNet9.Dtos.Auth;
+using restapi_crud_practice.Dtos.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace JwtAuthDotNet9.Services.SAuth
+namespace restapi_crud_practice.Services.SAuth
 {
     public class AuthService(BookBorrowingContext context, IConfiguration configuration) : IAuthService
     {
@@ -59,7 +59,7 @@ namespace JwtAuthDotNet9.Services.SAuth
             return user;
         }
 
-        public async Task<TokenResponseDto?> RefreshTokensAsync(Guid userId, string refreshToken)
+        public async Task<TokenResponseDto?> RefreshTokensAsync(Guid? userId, string refreshToken)
         {
             var user = await ValidateRefreshTokenAsync(userId, refreshToken);
             if (user is null)
@@ -68,7 +68,7 @@ namespace JwtAuthDotNet9.Services.SAuth
             return await CreateTokenResponse(user);
         }
 
-        private async Task<Client?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
+        private async Task<Client?> ValidateRefreshTokenAsync(Guid? userId, string refreshToken)
         {
             var user = await context.Clients.FindAsync(userId);
             if (user is null || user.RefreshToken != refreshToken
@@ -121,7 +121,7 @@ namespace JwtAuthDotNet9.Services.SAuth
 
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
-        public async Task<CheckPasswordDto?> CheckPasswordAsync(Guid userId)
+        public async Task<CheckPasswordDto?> CheckPasswordAsync(Guid? userId)
         {
             var user = await context.Clients.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
             if (user is null) return null;
@@ -151,7 +151,7 @@ namespace JwtAuthDotNet9.Services.SAuth
             return (expiresAt, isExpired, daysRemaining);
         }
 
-        public async Task<bool> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
+        public async Task<bool> ChangePasswordAsync(Guid? userId, string currentPassword, string newPassword)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
             if (user is null) return false;
@@ -169,7 +169,7 @@ namespace JwtAuthDotNet9.Services.SAuth
             return true;
         }
 
-        public async Task SignOutAsync(Guid userId)
+        public async Task SignOutAsync(Guid? userId)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
             if (user is null) return;
@@ -178,7 +178,7 @@ namespace JwtAuthDotNet9.Services.SAuth
 
             await context.SaveChangesAsync();
         }
-        public async Task<UserProfileDto?> GetProfileAsync(Guid userId)
+        public async Task<UserProfileDto?> GetProfileAsync(Guid? userId)
         {
             var user = await context.Clients.AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId);
@@ -189,7 +189,7 @@ namespace JwtAuthDotNet9.Services.SAuth
                 Role = user.Role ?? "User"
             };
         }
-        public async Task<bool> AdminSetPasswordAsync(Guid userId, string newPassword)
+        public async Task<bool> AdminSetPasswordAsync(Guid? userId, string newPassword)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
             if (user is null) return false;
@@ -200,7 +200,7 @@ namespace JwtAuthDotNet9.Services.SAuth
             await context.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> ChangeUserRoleAsync(Guid userId, string newRole)
+        public async Task<bool> ChangeUserRoleAsync(Guid? userId, string newRole)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
             if (user is null) return false;

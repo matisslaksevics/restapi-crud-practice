@@ -1,4 +1,4 @@
-using JwtAuthDotNet9.Services.SAuth;
+using restapi_crud_practice.Services.SAuth;
 using Microsoft.EntityFrameworkCore;
 using restapi_crud_practice.Data;
 using restapi_crud_practice.Services.SBook;
@@ -8,8 +8,6 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
-
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -43,7 +41,6 @@ builder.Services.AddSwaggerGen(c =>
         Title = "My API",
         Version = "v1"
     });
-
 
     var xml = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xml);

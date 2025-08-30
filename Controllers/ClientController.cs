@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Services.SClient;
 using Microsoft.AspNetCore.Authorization;
-namespace restapi_crud_practice.Endpoints
+namespace restapi_crud_practice.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ClientEndpoints(IClientService clientService) : ControllerBase
+    public class ClientController(IClientService clientService) : ControllerBase
     { 
         // GET /clients
         [Authorize(Roles="Admin")]

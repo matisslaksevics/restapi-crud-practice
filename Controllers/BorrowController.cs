@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Dtos.Borrow;
 using restapi_crud_practice.Mapping;
 using restapi_crud_practice.Services.SBorrow;
-namespace restapi_crud_practice.Endpoints
+using restapi_crud_practice.Helpers;
+namespace restapi_crud_practice.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class BorrowEndpoints(IBorrowService borrowService) : ControllerBase
+    public class BorrowController(IBorrowService borrowService) : ControllerBase
     {
         const string GetBorrowEndpointName = "GetBorrow";
         // GET/Borrows
@@ -34,11 +35,10 @@ namespace restapi_crud_practice.Endpoints
         [HttpGet("myborrows")]
         public async Task<ActionResult<List<BorrowSummaryDto>>> GetMyBorrows()
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null || !Guid.TryParse(userId, out var clientId))
-            {
-                return Unauthorized("Could not determine user from token.");
-            }
+            
+
+            var clientId = UserHelper.GetUserId(User);
+            if (clientId == null) return Unauthorized("Could not determine user from token.");
             return await borrowService.GetAllClientBorrowsAsync(clientId);
         }
 
@@ -47,11 +47,8 @@ namespace restapi_crud_practice.Endpoints
         [HttpPost("new-borrow")]
         public async Task<ActionResult<BorrowSummaryDto>> CreateBorrow([FromBody] CreateUserBorrowDto newBorrow)
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null || !Guid.TryParse(userId, out var clientId))
-            {
-                return Unauthorized("Could not determine user from token.");
-            }
+            var clientId = UserHelper.GetUserId(User);
+            if (clientId == null) return Unauthorized("Could not determine user from token.");
             var createdBorrow = await borrowService.CreateBorrowAsync(newBorrow, clientId);
             return CreatedAtRoute(GetBorrowEndpointName, new { id = createdBorrow.Id }, createdBorrow);
         }
