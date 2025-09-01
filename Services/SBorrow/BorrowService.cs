@@ -15,7 +15,12 @@ namespace restapi_crud_practice.Services.SBorrow
         }
         public async Task<List<BorrowSummaryDto>> GetAllBorrowsAsync()
         {
-            return await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true).Include(borrow => borrow.Client).Include(borrow => borrow.Book).Select(borrow => borrow.ToBorrowSummaryDto()).ToListAsync();
+            return await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true)
+                .Include(borrow => borrow.Client)
+                .Include(borrow => borrow.Book)
+                .Select(borrow => borrow
+                .ToBorrowSummaryDto())
+                .ToListAsync();
         }
 
         public async Task<Borrow?> GetBorrowByIdAsync(int id)
@@ -50,6 +55,7 @@ namespace restapi_crud_practice.Services.SBorrow
                     borrow.IsOverdue = false;
                 }
             }
+
             dbContext.Borrows.Add(borrow);
             await dbContext.SaveChangesAsync();
             return borrow.ToBorrowSummaryDto();
@@ -62,15 +68,9 @@ namespace restapi_crud_practice.Services.SBorrow
             borrow.Book = await dbContext.Books.FindAsync(newBorrow.BookId);
             if (borrow.ReturnDate is not null)
             {
-                if (borrow.BorrowDate.AddMonths(3) < borrow.ReturnDate)
-                {
-                    borrow.IsOverdue = true;
-                }
-                else
-                {
-                    borrow.IsOverdue = false;
-                }
+                borrow.IsOverdue = borrow.BorrowDate.AddMonths(3) < borrow.ReturnDate;
             }
+
             dbContext.Borrows.Add(borrow);
             await dbContext.SaveChangesAsync();
             return borrow.ToBorrowSummaryDto();
@@ -78,7 +78,11 @@ namespace restapi_crud_practice.Services.SBorrow
         public async Task<bool> UpdateBorrowAsync(int id, UpdateBorrowDto updatedBorrow)
         {
             var existingBorrow = await dbContext.Borrows.FindAsync(id);
-            if (existingBorrow is null) return false;
+            if (existingBorrow is null)
+            {
+                return false;
+            } 
+
             var modifiedBorrow = updatedBorrow with
             {
                 IsOverdue = updatedBorrow.ReturnDate is not null && updatedBorrow.BorrowDate.AddMonths(3) < updatedBorrow.ReturnDate

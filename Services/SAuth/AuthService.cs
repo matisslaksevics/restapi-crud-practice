@@ -63,7 +63,9 @@ namespace restapi_crud_practice.Services.SAuth
         {
             var user = await ValidateRefreshTokenAsync(userId, refreshToken);
             if (user is null)
+            {
                 return null;
+            }
 
             return await CreateTokenResponse(user);
         }
@@ -124,7 +126,10 @@ namespace restapi_crud_practice.Services.SAuth
         public async Task<CheckPasswordDto?> CheckPasswordAsync(Guid? userId)
         {
             var user = await context.Clients.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
-            if (user is null) return null;
+            if (user is null)
+            {
+                return null;
+            }
 
             var (expiresAt, isExpired, daysRemaining) = ComputePasswordStatus(user);
 
@@ -142,7 +147,9 @@ namespace restapi_crud_practice.Services.SAuth
         private static (DateTime? expiresAt, bool isExpired, int? daysRemaining) ComputePasswordStatus(Client user)
         {
             if (user.PasswordMaxAgeDays <= 0)
-                return (null, false, null);
+            {
+                return (null, false, null); // expiresAt = null, isExpired = false, daysRemaining = null
+            }
 
             var expiresAt = user.PasswordChangedAt.AddDays(user.PasswordMaxAgeDays);
             var now = DateTime.UtcNow;
@@ -154,11 +161,17 @@ namespace restapi_crud_practice.Services.SAuth
         public async Task<bool> ChangePasswordAsync(Guid? userId, string currentPassword, string newPassword)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user is null) return false;
+            if (user is null)
+            {
+                return false;
+            } 
 
             var hasher = new PasswordHasher<Client>();
             var verify = hasher.VerifyHashedPassword(user, user.PasswordHash, currentPassword);
-            if (verify == PasswordVerificationResult.Failed) return false;
+            if (verify == PasswordVerificationResult.Failed)
+            {
+                return false;
+            } 
 
             user.PasswordHash = hasher.HashPassword(user, newPassword);
 
@@ -172,7 +185,10 @@ namespace restapi_crud_practice.Services.SAuth
         public async Task SignOutAsync(Guid? userId)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user is null) return;
+            if (user is null)
+            {
+                return;
+            } 
             user.RefreshToken = null;
             user.RefreshTokenExpiryTime = null;
 
@@ -182,7 +198,10 @@ namespace restapi_crud_practice.Services.SAuth
         {
             var user = await context.Clients.AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId);
-            if (user is null) return null;
+            if (user is null)
+            {
+                return null;
+            }
             return new UserProfileDto
             {
                 Username = user.Username,
@@ -192,7 +211,11 @@ namespace restapi_crud_practice.Services.SAuth
         public async Task<bool> AdminSetPasswordAsync(Guid? userId, string newPassword)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user is null) return false;
+            if (user is null)
+            {
+                return false;
+            }
+           
             var hasher = new PasswordHasher<Client>();
             user.PasswordHash = hasher.HashPassword(user, newPassword);
             user.RefreshToken = null;
@@ -203,7 +226,11 @@ namespace restapi_crud_practice.Services.SAuth
         public async Task<bool> ChangeUserRoleAsync(Guid? userId, string newRole)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user is null) return false;
+            if (user is null)
+            {
+                return false;
+            }
+
             user.Role = newRole;
             await context.SaveChangesAsync();
             return true;

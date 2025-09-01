@@ -18,7 +18,9 @@ namespace restapi_crud_practice.Controllers
         {
             var user = await authService.RegisterAsync(request);
             if (user is null)
+            {
                 return BadRequest("Username already exists.");
+            }
 
             return Ok(user);
         }
@@ -28,7 +30,9 @@ namespace restapi_crud_practice.Controllers
         {
             var result = await authService.LoginAsync(request);
             if (result is null)
+            {
                 return BadRequest("Invalid username or password.");
+            }
 
             return Ok(result);
         }
@@ -38,11 +42,16 @@ namespace restapi_crud_practice.Controllers
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
             var clientId = UserHelper.GetUserId(User);
-            if (clientId == null) return Unauthorized("Could not determine user from token.");
+            if (clientId == null)
+            {
+                return Unauthorized("Could not determine user from token.");
+            }
 
             var result = await authService.RefreshTokensAsync(clientId, request.RefreshToken);
             if (result is null)
+            {
                 return Unauthorized("Invalid refresh token.");
+            }
 
             return Ok(result);
         }
@@ -75,10 +84,16 @@ namespace restapi_crud_practice.Controllers
         public async Task<IActionResult> CheckPassword()
         {
             var clientId = UserHelper.GetUserId(User);
-            if (clientId == null) return Unauthorized("Could not determine user from token.");
+            if (clientId == null)
+            {
+                return Unauthorized("Could not determine user from token.");
+            }
 
             var status = await authService.CheckPasswordAsync(clientId);
-            if (status is null) return NotFound();
+            if (status is null)
+            {
+                return NotFound();
+            }
 
             return Ok(status);
         }
@@ -89,10 +104,16 @@ namespace restapi_crud_practice.Controllers
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto body)
         {
             var clientId = UserHelper.GetUserId(User);
-            if (clientId == null) return Unauthorized("Could not determine user from token.");
+            if (clientId == null)
+            {
+                return Unauthorized("Could not determine user from token.");
+            }
 
             var changed = await authService.ChangePasswordAsync(clientId, body.CurrentPassword, body.NewPassword);
-            if (!changed) return BadRequest("Current password is incorrect.");
+            if (!changed)
+            {
+                return BadRequest("Current password is incorrect.");
+            }
 
             return NoContent();
         }
@@ -103,7 +124,10 @@ namespace restapi_crud_practice.Controllers
         public async Task<IActionResult> NewSignOut()
         {
             var clientId = UserHelper.GetUserId(User);
-            if (clientId == null) return Unauthorized("Could not determine user from token.");
+            if (clientId == null)
+            {
+                return Unauthorized("Could not determine user from token.");
+            }
 
             await authService.SignOutAsync(clientId);
             return NoContent();
@@ -115,7 +139,10 @@ namespace restapi_crud_practice.Controllers
         public async Task<ActionResult<UserProfileDto>> CheckProfile()
         {
             var clientId = UserHelper.GetUserId(User);
-            if (clientId == null) return Unauthorized("Could not determine user from token.");
+            if (clientId == null)
+            {
+                return Unauthorized("Could not determine user from token.");
+            }
 
             var result = await authService.GetProfileAsync(clientId);
             return Ok(result);
@@ -136,7 +163,10 @@ namespace restapi_crud_practice.Controllers
         public async Task<IActionResult> ChangeUserPassword([FromBody] AdminPasswordChangeDto body)
         {
             var changed = await authService.AdminSetPasswordAsync(body.Id, body.NewPassword);
-            if (!changed) return BadRequest("Current password is incorrect.");
+            if (!changed)
+            {
+                return BadRequest("Current password is incorrect.");
+            } 
 
             return NoContent();
         }
@@ -147,7 +177,11 @@ namespace restapi_crud_practice.Controllers
         public async Task<IActionResult> ChangeUserRole([FromBody] ChangeUserRoleDto body)
         {
             var changed = await authService.ChangeUserRoleAsync(body.Id, body.NewRole);
-            if (!changed) return BadRequest("Could not change user role.");
+            if (!changed)
+            {
+                return BadRequest("Could not change user role.");
+            } 
+
             return NoContent();
         }
     }

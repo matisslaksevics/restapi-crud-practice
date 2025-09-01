@@ -35,8 +35,6 @@ namespace restapi_crud_practice.Controllers
         [HttpGet("myborrows")]
         public async Task<ActionResult<List<BorrowSummaryDto>>> GetMyBorrows()
         {
-            
-
             var clientId = UserHelper.GetUserId(User);
             if (clientId == null) return Unauthorized("Could not determine user from token.");
             return await borrowService.GetAllClientBorrowsAsync(clientId);
@@ -48,11 +46,15 @@ namespace restapi_crud_practice.Controllers
         public async Task<ActionResult<BorrowSummaryDto>> CreateBorrow([FromBody] CreateUserBorrowDto newBorrow)
         {
             var clientId = UserHelper.GetUserId(User);
-            if (clientId == null) return Unauthorized("Could not determine user from token.");
+            if (clientId == null)
+            {
+                return Unauthorized("Could not determine user from token.");
+            }
             var createdBorrow = await borrowService.CreateBorrowAsync(newBorrow, clientId);
             return CreatedAtRoute(GetBorrowEndpointName, new { id = createdBorrow.Id }, createdBorrow);
         }
 
+        // POST/Borrows/admin/new-borrow
         [Authorize]
         [HttpPost("admin/new-borrow")]
         public async Task<ActionResult<BorrowSummaryDto>> AdminCreateBorrow([FromBody] CreateBorrowDto newBorrow)

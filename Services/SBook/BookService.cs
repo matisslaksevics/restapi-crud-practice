@@ -32,7 +32,11 @@ namespace restapi_crud_practice.Services.SBook
         public async Task<bool> UpdateBookAsync(int id, UpdateBookDto updatedBook)
         {
             var existingBook = await dbContext.Books.FindAsync(id);
-            if (existingBook is null) return false;
+            if (existingBook is null)
+            {
+                return false;
+            }
+
             dbContext.Entry(existingBook).CurrentValues.SetValues(updatedBook.ToEntity(id));
             await dbContext.SaveChangesAsync();
             return true;

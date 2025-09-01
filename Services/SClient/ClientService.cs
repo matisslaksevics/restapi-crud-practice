@@ -32,7 +32,10 @@ namespace restapi_crud_practice.Services.SClient
         public async Task<bool> UpdateClientAsync(Guid id, UpdateClientDto updatedClient)
         {
             var existingClient = await dbContext.Clients.FindAsync(id);
-            if (existingClient is null) return false;
+            if (existingClient is null)
+            {
+                return false;
+            }
             dbContext.Entry(existingClient).CurrentValues.SetValues(updatedClient.ToEntity(id));
             await dbContext.SaveChangesAsync();
             return true;
