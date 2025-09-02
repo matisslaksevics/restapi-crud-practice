@@ -41,7 +41,7 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
-            var clientId = UserHelper.GetUserId(User);
+            var clientId = ClientHelper.GetUserId(User);
             if (clientId == null)
             {
                 return Unauthorized("Could not determine user from token.");
@@ -83,7 +83,7 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("check-password")]
         public async Task<IActionResult> CheckPassword()
         {
-            var clientId = UserHelper.GetUserId(User);
+            var clientId = ClientHelper.GetUserId(User);
             if (clientId == null)
             {
                 return Unauthorized("Could not determine user from token.");
@@ -103,7 +103,7 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto body)
         {
-            var clientId = UserHelper.GetUserId(User);
+            var clientId = ClientHelper.GetUserId(User);
             if (clientId == null)
             {
                 return Unauthorized("Could not determine user from token.");
@@ -123,7 +123,7 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("signout")]
         public async Task<IActionResult> NewSignOut()
         {
-            var clientId = UserHelper.GetUserId(User);
+            var clientId = ClientHelper.GetUserId(User);
             if (clientId == null)
             {
                 return Unauthorized("Could not determine user from token.");
@@ -138,7 +138,7 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("profile")]
         public async Task<ActionResult<UserProfileDto>> CheckProfile()
         {
-            var clientId = UserHelper.GetUserId(User);
+            var clientId = ClientHelper.GetUserId(User);
             if (clientId == null)
             {
                 return Unauthorized("Could not determine user from token.");

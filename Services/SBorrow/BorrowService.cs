@@ -2,6 +2,7 @@
 using restapi_crud_practice.Data;
 using restapi_crud_practice.Dtos.Borrow;
 using restapi_crud_practice.Entities;
+using restapi_crud_practice.Helpers;
 using restapi_crud_practice.Mapping;
 
 namespace restapi_crud_practice.Services.SBorrow
@@ -44,17 +45,8 @@ namespace restapi_crud_practice.Services.SBorrow
             var borrow = newBorrow.ToEntity();
             borrow.Client = await dbContext.Clients.FindAsync(newBorrow.ClientId);
             borrow.Book = await dbContext.Books.FindAsync(newBorrow.BookId);
-            if (borrow.ReturnDate is not null)
-            {
-                if (borrow.BorrowDate.AddMonths(3) < borrow.ReturnDate)
-                {
-                    borrow.IsOverdue = true;
-                }
-                else
-                {
-                    borrow.IsOverdue = false;
-                }
-            }
+
+            borrow.IsOverdue = BorrowHelper.CalculateIsOverdue(borrow.BorrowDate, borrow.ReturnDate);
 
             dbContext.Borrows.Add(borrow);
             await dbContext.SaveChangesAsync();
@@ -66,10 +58,9 @@ namespace restapi_crud_practice.Services.SBorrow
             var borrow = newBorrow.ToEntity();
             borrow.Client = await dbContext.Clients.FirstOrDefaultAsync(u => u.Id == ClientId);
             borrow.Book = await dbContext.Books.FindAsync(newBorrow.BookId);
-            if (borrow.ReturnDate is not null)
-            {
-                borrow.IsOverdue = borrow.BorrowDate.AddMonths(3) < borrow.ReturnDate;
-            }
+
+
+            borrow.IsOverdue = BorrowHelper.CalculateIsOverdue(borrow.BorrowDate, borrow.ReturnDate);
 
             dbContext.Borrows.Add(borrow);
             await dbContext.SaveChangesAsync();
@@ -85,7 +76,7 @@ namespace restapi_crud_practice.Services.SBorrow
 
             var modifiedBorrow = updatedBorrow with
             {
-                IsOverdue = updatedBorrow.ReturnDate is not null && updatedBorrow.BorrowDate.AddMonths(3) < updatedBorrow.ReturnDate
+                IsOverdue = BorrowHelper.CalculateIsOverdue(updatedBorrow.BorrowDate, updatedBorrow.ReturnDate)
             };
             dbContext.Entry(existingBorrow).CurrentValues.SetValues(modifiedBorrow.ToEntity(id));
             await dbContext.SaveChangesAsync();
@@ -93,12 +84,7 @@ namespace restapi_crud_practice.Services.SBorrow
         }
         public async Task<bool> DeleteBorrowAsync(int id)
         {
-            var cmd = await dbContext.Borrows.Where(borrow => borrow.Id == id).ExecuteDeleteAsync();
-            if (cmd != 0)
-            {
-                return true;
-            }
-            return false;
+            return await DbOperationHelper.ExecuteDeleteAsync(dbContext.Borrows, borrow => borrow.Id == id);
         }
     }
 }

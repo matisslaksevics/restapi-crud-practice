@@ -2,6 +2,7 @@
 using restapi_crud_practice.Data;
 using restapi_crud_practice.Dtos.Book;
 using restapi_crud_practice.Entities;
+using restapi_crud_practice.Helpers;
 using restapi_crud_practice.Mapping;
 namespace restapi_crud_practice.Services.SBook
 {
@@ -43,12 +44,7 @@ namespace restapi_crud_practice.Services.SBook
         }
         public async Task<bool> DeleteBookAsync(int id)
         {
-            var cmd = await dbContext.Books.Where(book => book.Id == id).ExecuteDeleteAsync();
-            if (cmd != 0)
-            {
-                return true;
-            }
-            return false;
+            return await DbOperationHelper.ExecuteDeleteAsync(dbContext.Books, book => book.Id == id);
         }
     }
 }

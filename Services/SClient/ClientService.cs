@@ -2,6 +2,7 @@
 using restapi_crud_practice.Data;
 using restapi_crud_practice.Dtos.Client;
 using restapi_crud_practice.Entities;
+using restapi_crud_practice.Helpers;
 using restapi_crud_practice.Mapping;
 namespace restapi_crud_practice.Services.SClient
 {
@@ -41,13 +42,8 @@ namespace restapi_crud_practice.Services.SClient
             return true;
         }
         public async Task<bool> DeleteClientAsync(Guid id)
-        { 
-            var cmd = await dbContext.Clients.Where(client => client.Id == id).ExecuteDeleteAsync();
-            if (cmd != 0)
-            {
-                return true;
-            }
-            return false;
+        {
+            return await DbOperationHelper.ExecuteDeleteAsync(dbContext.Clients, client => client.Id == id);
         }
 
 

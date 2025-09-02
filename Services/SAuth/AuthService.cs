@@ -1,13 +1,15 @@
-﻿using restapi_crud_practice.Data;
-using restapi_crud_practice.Entities;
-using restapi_crud_practice.Dtos.Auth;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using restapi_crud_practice.Data;
+using restapi_crud_practice.Dtos.Auth;
+using restapi_crud_practice.Entities;
+using restapi_crud_practice.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using static restapi_crud_practice.Helpers.ClientHelper;
 
 namespace restapi_crud_practice.Services.SAuth
 {
@@ -16,12 +18,7 @@ namespace restapi_crud_practice.Services.SAuth
         public async Task<TokenResponseDto?> LoginAsync(UserDto request)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Username == request.Username);
-            if (user is null)
-            {
-                return null;
-            }
-            if (new PasswordHasher<Client>().VerifyHashedPassword(user, user.PasswordHash, request.Password)
-                == PasswordVerificationResult.Failed)
+            if (user is null || !ClientHelper.VerifyPassword(user, user.PasswordHash, request.Password))
             {
                 return null;
             }
@@ -161,23 +158,14 @@ namespace restapi_crud_practice.Services.SAuth
         public async Task<bool> ChangePasswordAsync(Guid? userId, string currentPassword, string newPassword)
         {
             var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user is null)
+            if (user is null || !ClientHelper.VerifyPassword(user, user.PasswordHash, currentPassword))
             {
                 return false;
-            } 
+            }
 
             var hasher = new PasswordHasher<Client>();
-            var verify = hasher.VerifyHashedPassword(user, user.PasswordHash, currentPassword);
-            if (verify == PasswordVerificationResult.Failed)
-            {
-                return false;
-            } 
-
             user.PasswordHash = hasher.HashPassword(user, newPassword);
-
-            user.RefreshToken = null;
-            user.RefreshTokenExpiryTime = null;
-
+            RefreshTokenHelper.InvalidateRefreshToken(user);
             await context.SaveChangesAsync();
             return true;
         }
@@ -188,9 +176,8 @@ namespace restapi_crud_practice.Services.SAuth
             if (user is null)
             {
                 return;
-            } 
-            user.RefreshToken = null;
-            user.RefreshTokenExpiryTime = null;
+            }
+            RefreshTokenHelper.InvalidateRefreshToken(user);
 
             await context.SaveChangesAsync();
         }
@@ -218,8 +205,7 @@ namespace restapi_crud_practice.Services.SAuth
            
             var hasher = new PasswordHasher<Client>();
             user.PasswordHash = hasher.HashPassword(user, newPassword);
-            user.RefreshToken = null;
-            user.RefreshTokenExpiryTime = null;
+            RefreshTokenHelper.InvalidateRefreshToken(user);
             await context.SaveChangesAsync();
             return true;
         }
