@@ -35,7 +35,6 @@ builder.Services.AddScoped<IBorrowService, BorrowService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSwaggerGen(c =>
 {
-
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "My API",
@@ -46,7 +45,6 @@ builder.Services.AddSwaggerGen(c =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xml);
     if (File.Exists(xmlPath))
         c.IncludeXmlComments(xmlPath);
-
 
     var jwtScheme = new OpenApiSecurityScheme
     {
@@ -92,5 +90,20 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var authService = services.GetRequiredService<IAuthService>();
+        await DataSeeder.SeedAdminUserAsync(authService);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Seeding error: {ex.Message}");
+        Console.WriteLine($"Error details: {ex}");
+    }
+}
 
 await app.RunAsync();

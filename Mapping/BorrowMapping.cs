@@ -5,27 +5,6 @@ namespace restapi_crud_practice.Mapping
 {
     public static class BorrowMapping
     {
-        public static Borrow ToEntity(this CreateBorrowDto borrow)
-        {
-            return new Borrow()
-            {
-                ClientId = borrow.ClientId,
-                BookId = borrow.BookId,
-                BorrowDate = borrow.BorrowDate,
-                ReturnDate = borrow.ReturnDate,
-                IsOverdue = borrow.IsOverdue
-            };
-        }
-        public static Borrow ToEntity(this CreateUserBorrowDto borrow)
-        {
-            return new Borrow()
-            {
-                BookId = borrow.BookId,
-                BorrowDate = borrow.BorrowDate,
-                ReturnDate = borrow.ReturnDate,
-                IsOverdue = borrow.IsOverdue
-            };
-        }
         public static BorrowSummaryDto ToBorrowSummaryDto(this Borrow borrow)
         {
             return new(
@@ -47,6 +26,27 @@ namespace restapi_crud_practice.Mapping
                borrow.ReturnDate,
                borrow.IsOverdue
            );
+        }
+        public static Borrow ToEntity(this CreateUserBorrowDto borrow)
+        {
+            return new Borrow()
+            {
+                BookId = borrow.BookId,
+                BorrowDate = borrow.BorrowDate,
+                ReturnDate = borrow.ReturnDate,
+                IsOverdue = borrow.IsOverdue
+            };
+        }
+        public static Borrow ToEntity(this CreateBorrowDto borrow)
+        {
+            return new Borrow()
+            {
+                ClientId = borrow.ClientId,
+                BookId = borrow.BookId,
+                BorrowDate = borrow.BorrowDate,
+                ReturnDate = borrow.ReturnDate,
+                IsOverdue = borrow.IsOverdue
+            };
         }
         public static Borrow ToEntity(this UpdateBorrowDto borrow, int id)
         {
