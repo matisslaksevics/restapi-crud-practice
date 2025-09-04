@@ -30,6 +30,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBorrowService, BorrowService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
