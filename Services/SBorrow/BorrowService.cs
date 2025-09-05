@@ -1,90 +1,101 @@
-﻿using Microsoft.EntityFrameworkCore;
-using restapi_crud_practice.Data;
-using restapi_crud_practice.Dtos.Borrow;
+﻿using restapi_crud_practice.Dtos.Borrow;
 using restapi_crud_practice.Entities;
 using restapi_crud_practice.Helpers;
 using restapi_crud_practice.Mapping;
+using restapi_crud_practice.Repositories.RBorrow;
 
 namespace restapi_crud_practice.Services.SBorrow
 {
     public class BorrowService : IBorrowService
     {
-        private readonly BookBorrowingContext dbContext;
-        public BorrowService(BookBorrowingContext dbContext)
+        private readonly IBorrowRepository _borrowRepository;
+        public BorrowService(IBorrowRepository borrowRepository)
         {
-            this.dbContext = dbContext;
+            _borrowRepository = borrowRepository;
         }
         public async Task<List<BorrowSummaryDto>> GetAllBorrowsAsync()
         {
-            return await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true)
-                .Include(borrow => borrow.Client)
-                .Include(borrow => borrow.Book)
-                .Select(borrow => borrow
-                .ToBorrowSummaryDto())
-                .ToListAsync();
+            return await _borrowRepository.GetAllBorrowsAsync();
         }
 
         public async Task<Borrow?> GetBorrowByIdAsync(int id)
         {
-            Borrow? borrow = await dbContext.Borrows.FindAsync(id);
-            return borrow;
+            return await _borrowRepository.GetBorrowByIdAsync(id);
         }
 
         public async Task<List<BorrowSummaryDto>> GetAllClientBorrowsAsync(Guid? userId) 
         {
-            return await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true)
-                .Where(borrow => borrow.ClientId == userId)
-                .Include(borrow => borrow.Client)
-                .Include(borrow => borrow.Book)
-                .Select(borrow => borrow
-                .ToBorrowSummaryDto())
-                .ToListAsync();
+            return await _borrowRepository.GetAllClientBorrowsAsync(userId);
         }
         public async Task<BorrowSummaryDto> AdminCreateBorrowAsync(CreateBorrowDto newBorrow)
-        { 
-            var borrow = newBorrow.ToEntity();
-            borrow.Client = await dbContext.Clients.FindAsync(newBorrow.ClientId);
-            borrow.Book = await dbContext.Books.FindAsync(newBorrow.BookId);
+        {
+            var borrowEntity = new Borrow
+            {
+                ClientId = newBorrow.ClientId,
+                BookId = newBorrow.BookId,
+                BorrowDate = newBorrow.BorrowDate,
+                ReturnDate = newBorrow.ReturnDate,
+                IsOverdue = BorrowHelper.CalculateIsOverdue(
+                    newBorrow.BorrowDate, newBorrow.ReturnDate)
+            };
 
-            borrow.IsOverdue = BorrowHelper.CalculateIsOverdue(borrow.BorrowDate, borrow.ReturnDate);
+            var createdBorrow = await _borrowRepository.CreateBorrowAsync(borrowEntity);
 
-            dbContext.Borrows.Add(borrow);
-            await dbContext.SaveChangesAsync();
-            return borrow.ToBorrowSummaryDto();
+            if (createdBorrow == null)
+            {
+                throw new InvalidOperationException("Failed to create borrow record");
+            }
+            return createdBorrow.ToBorrowSummaryDto();
         }
 
-        public async Task<BorrowSummaryDto> CreateBorrowAsync(CreateUserBorrowDto newBorrow, Guid? ClientId)
+        public async Task<BorrowSummaryDto> CreateBorrowAsync(CreateUserBorrowDto newBorrow, Guid? clientId)
         {
-            var borrow = newBorrow.ToEntity();
-            borrow.Client = await dbContext.Clients.FirstOrDefaultAsync(u => u.Id == ClientId);
-            borrow.Book = await dbContext.Books.FindAsync(newBorrow.BookId);
+            if (clientId == null)
+            {
+                throw new ArgumentNullException(nameof(clientId));
+            }
 
+            var borrowEntity = new Borrow
+            {
+                ClientId = clientId.Value,
+                BookId = newBorrow.BookId,
+                BorrowDate = newBorrow.BorrowDate,
+                ReturnDate = newBorrow.ReturnDate,
+                IsOverdue = BorrowHelper.CalculateIsOverdue(
+                    newBorrow.BorrowDate, newBorrow.ReturnDate)
+            };
 
-            borrow.IsOverdue = BorrowHelper.CalculateIsOverdue(borrow.BorrowDate, borrow.ReturnDate);
-
-            dbContext.Borrows.Add(borrow);
-            await dbContext.SaveChangesAsync();
-            return borrow.ToBorrowSummaryDto();
+            var createdBorrow = await _borrowRepository.CreateBorrowAsync(borrowEntity);
+            if (createdBorrow == null)
+            {
+                throw new InvalidOperationException("Failed to create borrow record");
+            }
+            return createdBorrow.ToBorrowSummaryDto();
         }
         public async Task<bool> UpdateBorrowAsync(int id, UpdateBorrowDto updatedBorrow)
         {
-            var existingBorrow = await dbContext.Borrows.FindAsync(id);
-            if (existingBorrow is null)
+            var existingBorrow = await _borrowRepository.GetBorrowByIdAsync(id);
+            if (existingBorrow == null)
             {
                 return false;
             } 
 
-            var modifiedBorrow = updatedBorrow with
+            var updatedEntity = new Borrow
             {
-                IsOverdue = BorrowHelper.CalculateIsOverdue(updatedBorrow.BorrowDate, updatedBorrow.ReturnDate)
+                Id = id,
+                BorrowDate = updatedBorrow.BorrowDate,
+                ReturnDate = updatedBorrow.ReturnDate,
+                ClientId = existingBorrow.ClientId, 
+                BookId = existingBorrow.BookId, 
+                IsOverdue = BorrowHelper.CalculateIsOverdue(
+                    updatedBorrow.BorrowDate, updatedBorrow.ReturnDate)
             };
-            dbContext.Entry(existingBorrow).CurrentValues.SetValues(modifiedBorrow.ToEntity(id));
-            await dbContext.SaveChangesAsync();
-            return true;
+
+            return await _borrowRepository.UpdateBorrowAsync(id, updatedEntity);
         }
         public async Task<bool> DeleteBorrowAsync(int id)
         {
-            return await DbOperationHelper.ExecuteDeleteAsync(dbContext.Borrows, borrow => borrow.Id == id);
+            return await _borrowRepository.DeleteBorrowAsync(id);
         }
     }
 }

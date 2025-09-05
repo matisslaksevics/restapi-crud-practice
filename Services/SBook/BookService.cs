@@ -1,50 +1,39 @@
-﻿using Microsoft.EntityFrameworkCore;
-using restapi_crud_practice.Data;
-using restapi_crud_practice.Dtos.Book;
+﻿using restapi_crud_practice.Dtos.Book;
 using restapi_crud_practice.Entities;
-using restapi_crud_practice.Helpers;
 using restapi_crud_practice.Mapping;
+using restapi_crud_practice.Repositories.RBook;
 namespace restapi_crud_practice.Services.SBook
 {
     public class BookService : IBookService
     {
-        private readonly BookBorrowingContext dbContext;
-        public BookService(BookBorrowingContext dbContext)
+        private readonly IBookRepository _bookRepository;
+        public BookService(IBookRepository bookRepository)
         {
-            this.dbContext = dbContext;
+            _bookRepository = bookRepository;
         }
         public async Task<List<BookSummaryDto>> GetAllBooksAsync()
         {
-            return await dbContext.Books.Select(book => book.ToBookSummaryDto()).ToListAsync();
+            return await _bookRepository.GetAllBooksAsync();
         }
 
         public async Task<Book?> GetBookByIdAsync(int id)
         {
-            Book? book = await dbContext.Books.FindAsync(id);
-            return book;
+            return await _bookRepository.GetBookByIdAsync(id);
         }
         public async Task<BookSummaryDto> CreateBookAsync(CreateBookDto newBook)
         {
             var book = newBook.ToEntity();
-            dbContext.Books.Add(book);
-            await dbContext.SaveChangesAsync();
-            return book.ToBookSummaryDto();
+            var createdBook = await _bookRepository.CreateBookAsync(book);
+            return createdBook.ToBookSummaryDto();
         }
         public async Task<bool> UpdateBookAsync(int id, UpdateBookDto updatedBook)
         {
-            var existingBook = await dbContext.Books.FindAsync(id);
-            if (existingBook is null)
-            {
-                return false;
-            }
-
-            dbContext.Entry(existingBook).CurrentValues.SetValues(updatedBook.ToEntity(id));
-            await dbContext.SaveChangesAsync();
-            return true;
+            var bookEntity = updatedBook.ToEntity(id);
+            return await _bookRepository.UpdateBookAsync(id, bookEntity);
         }
         public async Task<bool> DeleteBookAsync(int id)
         {
-            return await DbOperationHelper.ExecuteDeleteAsync(dbContext.Books, book => book.Id == id);
+            return await _bookRepository.DeleteBookAsync(id);
         }
     }
 }

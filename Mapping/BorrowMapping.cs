@@ -9,8 +9,8 @@ namespace restapi_crud_practice.Mapping
         {
             return new(
                 borrow.Id,
-                borrow.Client!.Username,
-                borrow.Book!.BookName,
+                borrow.Client?.Username ?? "Unknown Client",
+                borrow.Book?.BookName ?? "Unknown Book",
                 borrow.BorrowDate,
                 borrow.ReturnDate,
                 borrow.IsOverdue

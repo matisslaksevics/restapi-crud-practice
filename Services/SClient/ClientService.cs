@@ -1,4 +1,4 @@
-﻿using restapi_crud_practice.Data;
+﻿using restapi_crud_practice.Repositories.RClient;
 using restapi_crud_practice.Dtos.Client;
 using restapi_crud_practice.Entities;
 using restapi_crud_practice.Mapping;

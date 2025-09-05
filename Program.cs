@@ -4,6 +4,9 @@ using restapi_crud_practice.Data;
 using restapi_crud_practice.Services.SBook;
 using restapi_crud_practice.Services.SBorrow;
 using restapi_crud_practice.Services.SClient;
+using restapi_crud_practice.Repositories.RClient;
+using restapi_crud_practice.Repositories.RBook;
+using restapi_crud_practice.Repositories.RBorrow;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,7 +35,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IBorrowService, BorrowService>();
+builder.Services.AddScoped<IBorrowRepository, BorrowRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSwaggerGen(c =>
 {

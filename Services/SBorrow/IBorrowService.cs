@@ -9,7 +9,7 @@ namespace restapi_crud_practice.Services.SBorrow
         Task<Borrow?> GetBorrowByIdAsync(int id);
         Task<List<BorrowSummaryDto>> GetAllClientBorrowsAsync(Guid? userId);
         Task<BorrowSummaryDto> AdminCreateBorrowAsync(CreateBorrowDto newBorrow);
-        Task<BorrowSummaryDto> CreateBorrowAsync(CreateUserBorrowDto newBorrow, Guid? ClientId);
+        Task<BorrowSummaryDto> CreateBorrowAsync(CreateUserBorrowDto newBorrow, Guid? clientId);
         Task<bool> UpdateBorrowAsync(int id, UpdateBorrowDto updatedBorrow);
         Task<bool> DeleteBorrowAsync(int id);
     }
