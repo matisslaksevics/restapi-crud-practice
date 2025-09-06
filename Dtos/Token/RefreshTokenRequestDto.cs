@@ -1,4 +1,4 @@
-﻿namespace restapi_crud_practice.Dtos.Auth
+﻿namespace restapi_crud_practice.Dtos.Token
 {
     public class RefreshTokenRequestDto
     {

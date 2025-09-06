@@ -6,13 +6,10 @@ using restapi_crud_practice.Helpers;
 using restapi_crud_practice.Mapping;
 namespace restapi_crud_practice.Repositories.RBook
 {
-    public class BookRepository : IBookRepository
+    public class BookRepository(BookBorrowingContext dbContext) : IBookRepository
     {
-        private readonly BookBorrowingContext dbContext;
-        public BookRepository(BookBorrowingContext dbContext)
-        {
-            this.dbContext = dbContext;
-        }
+        private readonly BookBorrowingContext dbContext = dbContext;
+
         public async Task<List<BookSummaryDto>> GetAllBooksAsync()
         {
             return await dbContext.Books

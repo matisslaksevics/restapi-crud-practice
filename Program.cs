@@ -1,15 +1,18 @@
-using restapi_crud_practice.Services.SAuth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using restapi_crud_practice.Data;
+using restapi_crud_practice.Repositories;
+using restapi_crud_practice.Repositories.RBook;
+using restapi_crud_practice.Repositories.RBorrow;
+using restapi_crud_practice.Repositories.RClient;
+using restapi_crud_practice.Repositories.RToken;
+using restapi_crud_practice.Services.SAuth;
 using restapi_crud_practice.Services.SBook;
 using restapi_crud_practice.Services.SBorrow;
 using restapi_crud_practice.Services.SClient;
-using restapi_crud_practice.Repositories.RClient;
-using restapi_crud_practice.Repositories.RBook;
-using restapi_crud_practice.Repositories.RBorrow;
-using Microsoft.OpenApi.Models;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using restapi_crud_practice.Services.SToken;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +42,9 @@ builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IBorrowService, BorrowService>();
 builder.Services.AddScoped<IBorrowRepository, BorrowRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo

@@ -7,13 +7,9 @@ using restapi_crud_practice.Mapping;
 
 namespace restapi_crud_practice.Repositories.RBorrow
 {
-    public class BorrowRepository : IBorrowRepository
+    public class BorrowRepository(BookBorrowingContext dbContext) : IBorrowRepository
     {
-        private readonly BookBorrowingContext dbContext;
-        public BorrowRepository(BookBorrowingContext dbContext)
-        {
-            this.dbContext = dbContext;
-        }
+        private readonly BookBorrowingContext dbContext = dbContext;
 
         public async Task<List<BorrowSummaryDto>> GetAllBorrowsAsync()
         {

@@ -5,14 +5,9 @@ using restapi_crud_practice.Mapping;
 
 namespace restapi_crud_practice.Services.SClient
 {
-    public class ClientService : IClientService
+    public class ClientService(IClientRepository clientRepository) : IClientService
     {
-        private readonly IClientRepository _clientRepository;
-
-        public ClientService(IClientRepository clientRepository)
-        {
-            _clientRepository = clientRepository;
-        }
+        private readonly IClientRepository _clientRepository = clientRepository;
 
         public async Task<List<ClientSummaryDto>> GetAllClientsAsync()
         {

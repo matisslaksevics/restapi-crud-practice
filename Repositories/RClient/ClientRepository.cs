@@ -7,13 +7,9 @@ using restapi_crud_practice.Helpers;
 
 namespace restapi_crud_practice.Repositories.RClient
 {
-    public class ClientRepository : IClientRepository
+    public class ClientRepository(BookBorrowingContext dbContext) : IClientRepository
     {
-        private readonly BookBorrowingContext dbContext;
-        public ClientRepository(BookBorrowingContext dbContext)
-        {
-            this.dbContext = dbContext;
-        }
+        private readonly BookBorrowingContext dbContext = dbContext;
 
         public async Task<List<ClientSummaryDto>> GetAllClientsAsync()
         {

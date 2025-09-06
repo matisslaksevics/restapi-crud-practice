@@ -4,13 +4,10 @@ using restapi_crud_practice.Mapping;
 using restapi_crud_practice.Repositories.RBook;
 namespace restapi_crud_practice.Services.SBook
 {
-    public class BookService : IBookService
+    public class BookService(IBookRepository bookRepository) : IBookService
     {
-        private readonly IBookRepository _bookRepository;
-        public BookService(IBookRepository bookRepository)
-        {
-            _bookRepository = bookRepository;
-        }
+        private readonly IBookRepository _bookRepository = bookRepository;
+
         public async Task<List<BookSummaryDto>> GetAllBooksAsync()
         {
             return await _bookRepository.GetAllBooksAsync();

@@ -1,43 +1,33 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using restapi_crud_practice.Data;
 using restapi_crud_practice.Dtos.Auth;
+using restapi_crud_practice.Dtos.Token;
 using restapi_crud_practice.Entities;
 using restapi_crud_practice.Helpers;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+using restapi_crud_practice.Repositories;
+using restapi_crud_practice.Services.SToken;
 using static restapi_crud_practice.Helpers.ClientHelper;
 
 namespace restapi_crud_practice.Services.SAuth
 {
-    public class AuthService(BookBorrowingContext context, IConfiguration configuration) : IAuthService
+    public class AuthService(IAuthRepository authRepository, ITokenService tokenService) : IAuthService
     {
+        private readonly IAuthRepository _authRepository = authRepository;
+        private readonly ITokenService _tokenService = tokenService;
+
         public async Task<TokenResponseDto?> LoginAsync(UserDto request)
         {
-            var user = await context.Clients.FirstOrDefaultAsync(u => u.Username == request.Username);
+            var user = await _authRepository.GetClientByUsernameAsync(request.Username);
             if (user is null || !ClientHelper.VerifyPassword(user, user.PasswordHash, request.Password))
             {
                 return null;
             }
 
-            return await CreateTokenResponse(user);
-        }
-
-        private async Task<TokenResponseDto> CreateTokenResponse(Client user)
-        {
-            return new TokenResponseDto
-            {
-                AccessToken = CreateToken(user),
-                RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
-            };
+            return await _tokenService.CreateTokenResponseAsync(user);
         }
 
         public async Task<Client?> RegisterAsync(UserDto request)
         {
-            if (await context.Clients.AnyAsync(u => u.Username == request.Username))
+            if (await _authRepository.UsernameExistsAsync(request.Username))
             {
                 return null;
             }
@@ -50,86 +40,30 @@ namespace restapi_crud_practice.Services.SAuth
             user.PasswordHash = hashedPassword;
             user.Role = "User";
 
-            context.Clients.Add(user);
-            await context.SaveChangesAsync();
+            await _authRepository.AddClientAsync(user);
+            await _authRepository.SaveChangesAsync();
 
             return user;
         }
 
-        public async Task<TokenResponseDto?> RefreshTokensAsync(Guid? userId, string refreshToken)
+        public async Task<TokenResponseDto?> RefreshTokensAsync(Guid userId, string refreshToken)
         {
-            var user = await ValidateRefreshTokenAsync(userId, refreshToken);
-            if (user is null)
-            {
-                return null;
-            }
-
-            return await CreateTokenResponse(user);
+            return await _tokenService.RefreshTokensAsync(userId, refreshToken);
         }
 
-        private async Task<Client?> ValidateRefreshTokenAsync(Guid? userId, string refreshToken)
-        {
-            var user = await context.Clients.FindAsync(userId);
-            if (user is null || user.RefreshToken != refreshToken
-                || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-            {
-                return null;
-            }
-
-            return user;
-        }
-
-        private static string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
-        }
-
-        private async Task<string> GenerateAndSaveRefreshTokenAsync(Client user)
-        {
-            var refreshToken = GenerateRefreshToken();
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-            await context.SaveChangesAsync();
-            return refreshToken;
-        }
-
-        private string CreateToken(Client user)
-        {
-            var claims = new List<Claim>
-            {
-               new (ClaimTypes.NameIdentifier, user.Id.ToString()),
-               new (ClaimTypes.Name, user.Username),
-               new (ClaimTypes.Role, user.Role ?? "User")
-            };
-
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
-
-            var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration.GetValue<string>("AppSettings:Issuer"),
-                audience: configuration.GetValue<string>("AppSettings:Audience"),
-                claims: claims,
-                expires: DateTime.UtcNow.AddDays(1),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
-        }
         public async Task<CheckPasswordDto?> CheckPasswordAsync(Guid? userId)
         {
-            var user = await context.Clients.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+            if (userId is null)
+            {
+                return null;
+            }
+            var user = await _authRepository.GetClientByIdAsync(userId.Value);
             if (user is null)
             {
                 return null;
             }
 
             var (expiresAt, isExpired, daysRemaining) = ComputePasswordStatus(user);
-
             return new CheckPasswordDto
             {
                 Valid = !isExpired,
@@ -145,7 +79,7 @@ namespace restapi_crud_practice.Services.SAuth
         {
             if (user.PasswordMaxAgeDays <= 0)
             {
-                return (null, false, null); // expiresAt = null, isExpired = false, daysRemaining = null
+                return (null, false, null);
             }
 
             var expiresAt = user.PasswordChangedAt.AddDays(user.PasswordMaxAgeDays);
@@ -157,7 +91,11 @@ namespace restapi_crud_practice.Services.SAuth
 
         public async Task<bool> ChangePasswordAsync(Guid? userId, string currentPassword, string newPassword)
         {
-            var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
+            if (userId is null)
+            {
+                return false;
+            }
+            var user = await _authRepository.GetClientByIdAsync(userId.Value);
             if (user is null || !ClientHelper.VerifyPassword(user, user.PasswordHash, currentPassword))
             {
                 return false;
@@ -166,59 +104,86 @@ namespace restapi_crud_practice.Services.SAuth
             var hasher = new PasswordHasher<Client>();
             user.PasswordHash = hasher.HashPassword(user, newPassword);
             RefreshTokenHelper.InvalidateRefreshToken(user);
-            await context.SaveChangesAsync();
+
+            await _authRepository.UpdateClientAsync(user);
+            await _authRepository.SaveChangesAsync();
             return true;
         }
 
-        public async Task SignOutAsync(Guid? userId)
+        public async Task<bool> SignOutAsync(Guid? userId)
         {
-            var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
+            if (userId is null)
+            {
+                return false;
+            }
+            var user = await _authRepository.GetClientByIdAsync(userId.Value);
             if (user is null)
             {
-                return;
+                return false;
             }
-            RefreshTokenHelper.InvalidateRefreshToken(user);
 
-            await context.SaveChangesAsync();
+            RefreshTokenHelper.InvalidateRefreshToken(user);
+            await _authRepository.UpdateClientAsync(user);
+            await _authRepository.SaveChangesAsync();
+
+            return true;
         }
+
         public async Task<UserProfileDto?> GetProfileAsync(Guid? userId)
         {
-            var user = await context.Clients.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            if (userId is null)
+            {
+                return null;
+            }
+            var user = await _authRepository.GetClientByIdAsync(userId.Value);
             if (user is null)
             {
                 return null;
             }
+
             return new UserProfileDto
             {
                 Username = user.Username,
                 Role = user.Role ?? "User"
             };
         }
+
         public async Task<bool> AdminSetPasswordAsync(Guid? userId, string newPassword)
         {
-            var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
+            if (userId is null)
+            {
+                return false;
+            }
+            var user = await _authRepository.GetClientByIdAsync(userId.Value);
             if (user is null)
             {
                 return false;
             }
-           
+
             var hasher = new PasswordHasher<Client>();
             user.PasswordHash = hasher.HashPassword(user, newPassword);
             RefreshTokenHelper.InvalidateRefreshToken(user);
-            await context.SaveChangesAsync();
+
+            await _authRepository.UpdateClientAsync(user);
+            await _authRepository.SaveChangesAsync();
             return true;
         }
+
         public async Task<bool> ChangeUserRoleAsync(Guid? userId, string newRole)
         {
-            var user = await context.Clients.FirstOrDefaultAsync(u => u.Id == userId);
+            if (userId is null)
+            {
+                return false;
+            }
+            var user = await _authRepository.GetClientByIdAsync(userId.Value);
             if (user is null)
             {
                 return false;
             }
 
             user.Role = newRole;
-            await context.SaveChangesAsync();
+            await _authRepository.UpdateClientAsync(user);
+            await _authRepository.SaveChangesAsync();
             return true;
         }
     }

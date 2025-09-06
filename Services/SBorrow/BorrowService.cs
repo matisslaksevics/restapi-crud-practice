@@ -6,13 +6,10 @@ using restapi_crud_practice.Repositories.RBorrow;
 
 namespace restapi_crud_practice.Services.SBorrow
 {
-    public class BorrowService : IBorrowService
+    public class BorrowService(IBorrowRepository borrowRepository) : IBorrowService
     {
-        private readonly IBorrowRepository _borrowRepository;
-        public BorrowService(IBorrowRepository borrowRepository)
-        {
-            _borrowRepository = borrowRepository;
-        }
+        private readonly IBorrowRepository _borrowRepository = borrowRepository;
+
         public async Task<List<BorrowSummaryDto>> GetAllBorrowsAsync()
         {
             return await _borrowRepository.GetAllBorrowsAsync();

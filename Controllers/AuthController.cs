@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Dtos.Auth;
+using restapi_crud_practice.Dtos.Token;
 using restapi_crud_practice.Entities;
 using restapi_crud_practice.Helpers;
 using restapi_crud_practice.Services.SAuth;
-
 
 namespace restapi_crud_practice.Controllers
 {
@@ -47,7 +47,7 @@ namespace restapi_crud_practice.Controllers
                 return Unauthorized("Could not determine user from token.");
             }
 
-            var result = await authService.RefreshTokensAsync(clientId, request.RefreshToken);
+            var result = await authService.RefreshTokensAsync(clientId.Value, request.RefreshToken);
             if (result is null)
             {
                 return Unauthorized("Invalid refresh token.");
@@ -129,7 +129,11 @@ namespace restapi_crud_practice.Controllers
                 return Unauthorized("Could not determine user from token.");
             }
 
-            await authService.SignOutAsync(clientId);
+            var result = await authService.SignOutAsync(clientId);
+            if (!result)
+            {
+                return BadRequest("Could not sign out user.");
+            }
             return NoContent();
         }
 
