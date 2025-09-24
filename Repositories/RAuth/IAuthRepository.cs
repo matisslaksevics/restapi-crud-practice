@@ -7,8 +7,8 @@ namespace restapi_crud_practice.Repositories
         Task<Client?> GetClientByUsernameAsync(string username);
         Task<Client?> GetClientByIdAsync(Guid id);
         Task<bool> UsernameExistsAsync(string username);
-        Task AddClientAsync(Client client);
-        Task UpdateClientAsync(Client client);
-        Task SaveChangesAsync();
+        Task<Client?> CreateClientAsync(Client client);
+        Task<bool> UpdateClientAsync(Client client);
+        Task<string?> GetHashedPasswordAsync(Guid userId);
     }
 }

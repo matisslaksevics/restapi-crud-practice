@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Dtos.Borrow;
 using restapi_crud_practice.Mapping;
 using restapi_crud_practice.Services.SBorrow;
-using restapi_crud_practice.Helpers;
+using restapi_crud_practice.Services.SUserContext;
 namespace restapi_crud_practice.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class BorrowController(IBorrowService borrowService) : ControllerBase
+    public class BorrowController(IBorrowService borrowService, IUserContextService userContext) : ControllerBase
     {
         const string GetBorrowEndpointName = "GetBorrow";
         // GET/Borrows
@@ -27,15 +27,19 @@ namespace restapi_crud_practice.Controllers
 
         // GET/Borrows/user/{id}
         [Authorize(Roles = "Admin")]
-        [HttpGet("admin/user-borrows/{id}")]
-        public async Task<ActionResult<List<BorrowSummaryDto>>> GetAllClientBorrows(Guid id) => await borrowService.GetAllClientBorrowsAsync(id);
+        [HttpGet("admin/user-borrows/{id:guid}")]
+        public async Task<ActionResult<List<BorrowSummaryDto>>> GetAllClientBorrows(Guid id)
+        {
+            var result = await borrowService.GetAllClientBorrowsAsync(id);
+            return result?.Any() == true ? Ok(result) : NotFound("No borrow records found for this user.");
+        }
 
         // GET/Borrows/myborrows
         [Authorize]
         [HttpGet("myborrows")]
         public async Task<ActionResult<List<BorrowSummaryDto>>> GetMyBorrows()
         {
-            var clientId = ClientHelper.GetUserId(User);
+            var clientId = userContext.GetUserId(User);
             if (clientId == null) return Unauthorized("Could not determine user from token.");
             return await borrowService.GetAllClientBorrowsAsync(clientId);
         }
@@ -45,7 +49,7 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("new-borrow")]
         public async Task<ActionResult<BorrowSummaryDto>> CreateBorrow([FromBody] CreateUserBorrowDto newBorrow)
         {
-            var clientId = ClientHelper.GetUserId(User);
+            var clientId = userContext.GetUserId(User);
             if (clientId == null)
             {
                 return Unauthorized("Could not determine user from token.");
@@ -74,9 +78,14 @@ namespace restapi_crud_practice.Controllers
         // DELETE/Borrows/{id}
         [Authorize(Roles = "Admin")]
         [HttpDelete("admin/delete-borrow/{id}")]
-        public async Task<IActionResult> DeleteBorrow(int id) 
+        public async Task<IActionResult> DeleteBorrow(int id)
         {
-            return await borrowService.DeleteBorrowAsync(id) ? NoContent() : NotFound();
+            var (success, rowsAffected) = await borrowService.DeleteBorrowAsync(id);
+            if (!success)
+            {
+                return NotFound($"Borrow record with ID {id} not found.");
+            }
+            return Ok(new { Message = $"Successfully deleted {rowsAffected} borrow record(s)." });
         }
     }
 }

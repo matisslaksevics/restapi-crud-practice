@@ -31,23 +31,29 @@ namespace restapi_crud_practice.Controllers
         public async Task<ActionResult<BookSummaryDto>> CreateBook([FromBody] CreateBookDto newBook) 
         { 
             var createdBook = await bookService.CreateBookAsync(newBook);
-            return CreatedAtRoute(GetBookEndpointName, new { id = createdBook.Id }, createdBook);
+            return Ok(createdBook);
         }
 
         // PUT /Books/{id}
         [Authorize(Roles = "Admin")]
         [HttpPut("admin/update-book/{id}")]
-        public async Task<IActionResult> UpdateBook(int id, [FromBody] UpdateBookDto updatedBook)
+        public async Task<ActionResult<BookSummaryDto>> UpdateBook(int id, [FromBody] UpdateBookDto updatedBook)
         {
-            return await bookService.UpdateBookAsync(id, updatedBook) ? NoContent() : NotFound();
+            var result = await bookService.UpdateBookAsync(id, updatedBook);
+            return result is null ? NotFound() : Ok(result);
         }
 
         // DELETE /Books/{id}
         [Authorize(Roles = "Admin")]
         [HttpDelete("admin/delete-book/{id}")]
-        public async Task<IActionResult> DeleteBook(int id) 
+        public async Task<IActionResult> DeleteBook(int id)
         {
-            return await bookService.DeleteBookAsync(id) ? NoContent() : NotFound();
+            var (success, rowsAffected) = await bookService.DeleteBookAsync(id);
+            if (!success)
+            {
+                return NotFound($"Book with ID {id} not found.");
+            }
+            return Ok(new { Message = $"Successfully deleted {rowsAffected} book(s)." });
         }
     }
 }

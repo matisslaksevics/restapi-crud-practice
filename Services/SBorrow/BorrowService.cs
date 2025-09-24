@@ -6,9 +6,10 @@ using restapi_crud_practice.Repositories.RBorrow;
 
 namespace restapi_crud_practice.Services.SBorrow
 {
-    public class BorrowService(IBorrowRepository borrowRepository) : IBorrowService
+    public class BorrowService(IBorrowRepository borrowRepository, BorrowHelper borrowHelper) : IBorrowService
     {
         private readonly IBorrowRepository _borrowRepository = borrowRepository;
+        private readonly BorrowHelper _borrowHelper = borrowHelper;
 
         public async Task<List<BorrowSummaryDto>> GetAllBorrowsAsync()
         {
@@ -32,7 +33,7 @@ namespace restapi_crud_practice.Services.SBorrow
                 BookId = newBorrow.BookId,
                 BorrowDate = newBorrow.BorrowDate,
                 ReturnDate = newBorrow.ReturnDate,
-                IsOverdue = BorrowHelper.CalculateIsOverdue(
+                IsOverdue = _borrowHelper.CalculateIsOverdue(
                     newBorrow.BorrowDate, newBorrow.ReturnDate)
             };
 
@@ -58,7 +59,7 @@ namespace restapi_crud_practice.Services.SBorrow
                 BookId = newBorrow.BookId,
                 BorrowDate = newBorrow.BorrowDate,
                 ReturnDate = newBorrow.ReturnDate,
-                IsOverdue = BorrowHelper.CalculateIsOverdue(
+                IsOverdue = _borrowHelper.CalculateIsOverdue(
                     newBorrow.BorrowDate, newBorrow.ReturnDate)
             };
 
@@ -84,13 +85,13 @@ namespace restapi_crud_practice.Services.SBorrow
                 ReturnDate = updatedBorrow.ReturnDate,
                 ClientId = existingBorrow.ClientId, 
                 BookId = existingBorrow.BookId, 
-                IsOverdue = BorrowHelper.CalculateIsOverdue(
+                IsOverdue = _borrowHelper.CalculateIsOverdue(
                     updatedBorrow.BorrowDate, updatedBorrow.ReturnDate)
             };
 
             return await _borrowRepository.UpdateBorrowAsync(id, updatedEntity);
         }
-        public async Task<bool> DeleteBorrowAsync(int id)
+        public async Task<(bool Success, int RowsAffected)> DeleteBorrowAsync(int id)
         {
             return await _borrowRepository.DeleteBorrowAsync(id);
         }

@@ -11,6 +11,6 @@ namespace restapi_crud_practice.Services.SBorrow
         Task<BorrowSummaryDto> AdminCreateBorrowAsync(CreateBorrowDto newBorrow);
         Task<BorrowSummaryDto> CreateBorrowAsync(CreateUserBorrowDto newBorrow, Guid? clientId);
         Task<bool> UpdateBorrowAsync(int id, UpdateBorrowDto updatedBorrow);
-        Task<bool> DeleteBorrowAsync(int id);
+        Task<(bool Success, int RowsAffected)> DeleteBorrowAsync(int id);
     }
 }

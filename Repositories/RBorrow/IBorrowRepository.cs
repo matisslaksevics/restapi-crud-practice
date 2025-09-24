@@ -10,7 +10,7 @@ namespace restapi_crud_practice.Repositories.RBorrow
         Task<List<BorrowSummaryDto>> GetAllClientBorrowsAsync(Guid? userId);
         Task<Borrow?> CreateBorrowAsync(Borrow borrow); 
         Task<bool> UpdateBorrowAsync(int id, Borrow borrow);
-        Task<bool> DeleteBorrowAsync(int id);
+        Task<(bool Success, int RowsAffected)> DeleteBorrowAsync(int id);
         Task<Book?> GetBookAsync(int bookId);
     }
 }

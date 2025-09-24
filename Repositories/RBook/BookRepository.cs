@@ -1,20 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using restapi_crud_practice.Data;
-using restapi_crud_practice.Dtos.Book;
 using restapi_crud_practice.Entities;
 using restapi_crud_practice.Helpers;
-using restapi_crud_practice.Mapping;
 namespace restapi_crud_practice.Repositories.RBook
 {
     public class BookRepository(BookBorrowingContext dbContext) : IBookRepository
     {
         private readonly BookBorrowingContext dbContext = dbContext;
 
-        public async Task<List<BookSummaryDto>> GetAllBooksAsync()
+        public async Task<List<Book>> GetAllBooksAsync()
         {
-            return await dbContext.Books
-                .Select(book => book
-                .ToBookSummaryDto()).ToListAsync();
+            return await dbContext.Books.ToListAsync();
         }
 
         public async Task<Book?> GetBookByIdAsync(int id)
@@ -39,9 +35,9 @@ namespace restapi_crud_practice.Repositories.RBook
             await dbContext.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> DeleteBookAsync(int id)
+        public async Task<(bool Success, int RowsAffected)> DeleteBookAsync(int id)
         {
-            return await DbOperationHelper.ExecuteDeleteAsync(dbContext.Books, book => book.Id == id);
+            return await DbOperationHelper.ExecuteDeleteWithCountAsync(dbContext.Books, book => book.Id == id);
         }
     }
 }

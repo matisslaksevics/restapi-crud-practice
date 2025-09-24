@@ -8,12 +8,12 @@ namespace restapi_crud_practice.Services.SAuth
     {
         Task<Client?> RegisterAsync(UserDto request);
         Task<TokenResponseDto?> LoginAsync(UserDto request);
-        Task<TokenResponseDto?> RefreshTokensAsync(Guid userId, string refreshToken);
+        Task<(TokenResponseDto? Tokens, string? Error)> RefreshTokensAsync(Guid userId, string refreshToken);
         Task<CheckPasswordDto?> CheckPasswordAsync(Guid? userId);
-        Task<bool> ChangePasswordAsync(Guid? userId, string currentPassword, string newPassword);
+        Task<bool> UpdatePasswordAsync(Guid? userId, string currentPassword, string newPassword);
         Task<bool> SignOutAsync(Guid? userId);
         Task<UserProfileDto?> GetProfileAsync(Guid? userId);
-        Task<bool> AdminSetPasswordAsync(Guid? userId, string newPassword);
-        Task<bool> ChangeUserRoleAsync(Guid? userId, string newRole);
+        Task<bool> AdminUpdatePasswordAsync(Guid? userId, string newPassword);
+        Task<bool> UpdateUserRoleAsync(Guid? userId, string newRole);
     }
 }

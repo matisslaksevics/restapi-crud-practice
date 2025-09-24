@@ -23,20 +23,41 @@ namespace restapi_crud_practice.Repositories
             return await dbContext.Clients.AnyAsync(u => u.Username == username);
         }
 
-        public async Task AddClientAsync(Client client)
+        public async Task<Client?> CreateClientAsync(Client client)
         {
-            await dbContext.Clients.AddAsync(client);
+            try
+            {
+                var result = await dbContext.Clients.AddAsync(client);
+                await dbContext.SaveChangesAsync();
+                return result.Entity;
+            }
+            catch (DbUpdateException)
+            {
+                return null;
+            }
         }
 
-        public async Task UpdateClientAsync(Client client)
+        public async Task<bool> UpdateClientAsync(Client client)
         {
-            dbContext.Clients.Update(client);
-            await Task.CompletedTask;
+            try
+            {
+                dbContext.Clients.Update(client);
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
-
-        public async Task SaveChangesAsync()
+        public async Task<string?> GetHashedPasswordAsync(Guid userId)
         {
-            await dbContext.SaveChangesAsync();
+            var user = await dbContext.Clients
+                .Where(c => c.Id == userId)
+                .Select(c => c.PasswordHash) 
+                .FirstOrDefaultAsync();
+
+            return user;
         }
     }
 }

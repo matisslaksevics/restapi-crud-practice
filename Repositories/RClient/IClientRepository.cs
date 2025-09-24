@@ -9,6 +9,6 @@ namespace restapi_crud_practice.Repositories.RClient
         Task<Client?> GetClientByIdAsync(Guid id);
         Task<Client> CreateClientAsync(Client client);
         Task<bool> UpdateClientAsync(Guid id, Client client);
-        Task<bool> DeleteClientAsync(Guid id);
+        Task<(bool Success, int RowsAffected)> DeleteClientAsync(Guid id);
     }
 }

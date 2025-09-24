@@ -10,7 +10,8 @@ namespace restapi_crud_practice.Services.SBook
 
         public async Task<List<BookSummaryDto>> GetAllBooksAsync()
         {
-            return await _bookRepository.GetAllBooksAsync();
+            var books = await _bookRepository.GetAllBooksAsync();
+            return books.Select(book => book.ToBookSummaryDto()).ToList();
         }
 
         public async Task<Book?> GetBookByIdAsync(int id)
@@ -23,12 +24,19 @@ namespace restapi_crud_practice.Services.SBook
             var createdBook = await _bookRepository.CreateBookAsync(book);
             return createdBook.ToBookSummaryDto();
         }
-        public async Task<bool> UpdateBookAsync(int id, UpdateBookDto updatedBook)
+        public async Task<BookSummaryDto?> UpdateBookAsync(int id, UpdateBookDto updatedBookDto)
         {
-            var bookEntity = updatedBook.ToEntity(id);
-            return await _bookRepository.UpdateBookAsync(id, bookEntity);
+            var bookEntity = updatedBookDto.ToEntity(id);
+            var success = await _bookRepository.UpdateBookAsync(id, bookEntity);
+            if (!success)
+            {
+                return null;
+            }
+
+            var updatedBook = await _bookRepository.GetBookByIdAsync(id);
+            return updatedBook?.ToBookSummaryDto();
         }
-        public async Task<bool> DeleteBookAsync(int id)
+        public async Task<(bool Success, int RowsAffected)> DeleteBookAsync(int id)
         {
             return await _bookRepository.DeleteBookAsync(id);
         }

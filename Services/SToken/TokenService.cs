@@ -1,7 +1,9 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using restapi_crud_practice.Data;
 using restapi_crud_practice.Dtos.Token;
 using restapi_crud_practice.Entities;
 using restapi_crud_practice.Repositories;
+using restapi_crud_practice.Services.SJwt;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -9,11 +11,10 @@ using System.Text;
 
 namespace restapi_crud_practice.Services.SToken
 {
-    public class TokenService(ITokenRepository tokenRepository, IAuthRepository authRepository, IConfiguration configuration) : ITokenService
+    public class TokenService(IAuthRepository authRepository, IJwtSettingsService jwtSettings, BookBorrowingContext dbContext) : ITokenService
     {
-        private readonly ITokenRepository _tokenRepository = tokenRepository; 
         private readonly IAuthRepository _authRepository = authRepository;
-        private readonly IConfiguration _configuration = configuration;
+        private readonly BookBorrowingContext dbContext = dbContext;
 
         public async Task<TokenResponseDto> CreateTokenResponseAsync(Client user)
         {
@@ -37,7 +38,7 @@ namespace restapi_crud_practice.Services.SToken
 
         private async Task<Client?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
         {
-            var user = await _tokenRepository.GetClientByIdAsync(userId);
+            var user = await _authRepository.GetClientByIdAsync(userId);
             if (user is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow || string.IsNullOrEmpty(user.RefreshToken) || user.RefreshToken != refreshToken)
             {
                 return null;
@@ -61,7 +62,7 @@ namespace restapi_crud_practice.Services.SToken
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
             await _authRepository.UpdateClientAsync(user);
-            await _authRepository.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
             return refreshToken;
         }
 
@@ -74,14 +75,14 @@ namespace restapi_crud_practice.Services.SToken
                 new (ClaimTypes.Role, user.Role ?? "User")
             };
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["AppSettings:Token"]!));
+            var tokenSecret = jwtSettings.GetTokenSecret();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSecret));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: _configuration["AppSettings:Issuer"],
-                audience: _configuration["AppSettings:Audience"],
+                issuer: jwtSettings.GetIssuer(),
+                audience: jwtSettings.GetAudience(),
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: creds

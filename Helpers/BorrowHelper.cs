@@ -1,10 +1,20 @@
-﻿namespace restapi_crud_practice.Helpers
+﻿using Microsoft.Extensions.Configuration;
+
+namespace restapi_crud_practice.Helpers
 {
-    public static class BorrowHelper
+    public class BorrowHelper
     {
-        public static bool CalculateIsOverdue(DateOnly borrowDate, DateOnly? returnDate)
+        private readonly IConfiguration _configuration;
+
+        public BorrowHelper(IConfiguration configuration)
         {
-            return returnDate is not null && borrowDate.AddMonths(3) < returnDate;
+            _configuration = configuration;
+        }
+
+        public bool CalculateIsOverdue(DateOnly borrowDate, DateOnly? returnDate)
+        {
+            var maxMonths = _configuration.GetValue<int>("BorrowSettings:MaxBorrowMonths", 3);
+            return returnDate is not null && borrowDate.AddMonths(maxMonths) < returnDate;
         }
     }
 }

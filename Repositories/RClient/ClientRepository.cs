@@ -42,9 +42,9 @@ namespace restapi_crud_practice.Repositories.RClient
             await dbContext.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> DeleteClientAsync(Guid id)
+        public async Task<(bool Success, int RowsAffected)> DeleteClientAsync(Guid id)
         {
-            return await DbOperationHelper.ExecuteDeleteAsync(dbContext.Clients, client => client.Id == id);
+            return await DbOperationHelper.ExecuteDeleteWithCountAsync(dbContext.Clients, client => client.Id == id);
         }
     }
 }

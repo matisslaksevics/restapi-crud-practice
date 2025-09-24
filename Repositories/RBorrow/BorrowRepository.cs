@@ -72,16 +72,15 @@ namespace restapi_crud_practice.Repositories.RBorrow
             }
 
             dbContext.Entry(existingBorrow).CurrentValues.SetValues(borrow);
-            existingBorrow.IsOverdue = BorrowHelper.CalculateIsOverdue(borrow.BorrowDate, borrow.ReturnDate);
             existingBorrow.ClientId = borrow.ClientId;
             existingBorrow.BookId = borrow.BookId;
 
             await dbContext.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> DeleteBorrowAsync(int id)
+        public async Task<(bool Success, int RowsAffected)> DeleteBorrowAsync(int id)
         {
-            return await DbOperationHelper.ExecuteDeleteAsync(dbContext.Borrows, borrow => borrow.Id == id);
+            return await DbOperationHelper.ExecuteDeleteWithCountAsync(dbContext.Borrows, borrow => borrow.Id == id);
         }
     }
 }

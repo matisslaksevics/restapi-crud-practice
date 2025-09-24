@@ -5,10 +5,10 @@ namespace restapi_crud_practice.Repositories.RBook
 {
     public interface IBookRepository
     {
-        Task<List<BookSummaryDto>> GetAllBooksAsync();
+        Task<List<Book>> GetAllBooksAsync();
         Task<Book?> GetBookByIdAsync(int id);
         Task<Book> CreateBookAsync(Book book);
         Task<bool> UpdateBookAsync(int id, Book book);
-        Task<bool> DeleteBookAsync(int id);
+        Task<(bool Success, int RowsAffected)> DeleteBookAsync(int id);
     }
 }

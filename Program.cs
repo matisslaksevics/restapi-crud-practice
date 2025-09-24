@@ -3,16 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using restapi_crud_practice.Data;
+using restapi_crud_practice.Entities;
+using restapi_crud_practice.Helpers;
 using restapi_crud_practice.Repositories;
 using restapi_crud_practice.Repositories.RBook;
 using restapi_crud_practice.Repositories.RBorrow;
 using restapi_crud_practice.Repositories.RClient;
-using restapi_crud_practice.Repositories.RToken;
 using restapi_crud_practice.Services.SAuth;
 using restapi_crud_practice.Services.SBook;
 using restapi_crud_practice.Services.SBorrow;
 using restapi_crud_practice.Services.SClient;
+using restapi_crud_practice.Services.SJwt;
 using restapi_crud_practice.Services.SToken;
+using restapi_crud_practice.Services.SUserContext;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,7 +47,10 @@ builder.Services.AddScoped<IBorrowRepository, BorrowRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<BorrowHelper>();
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.AddScoped<IJwtSettingsService, JwtSettingsService>();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -109,7 +115,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var authService = services.GetRequiredService<IAuthService>();
-        await DataSeeder.SeedAdminUserAsync(authService);
+        await DataSeeder.SeedAdminUserAsync(authService, builder.Configuration);
     }
     catch (Exception ex)
     {

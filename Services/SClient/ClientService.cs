@@ -32,7 +32,7 @@ namespace restapi_crud_practice.Services.SClient
             return await _clientRepository.UpdateClientAsync(id, clientEntity);
         }
 
-        public async Task<bool> DeleteClientAsync(Guid id)
+        public async Task<(bool Success, int RowsAffected)> DeleteClientAsync(Guid id)
         {
             return await _clientRepository.DeleteClientAsync(id);
         }

@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Dtos.Auth;
 using restapi_crud_practice.Dtos.Token;
 using restapi_crud_practice.Entities;
-using restapi_crud_practice.Helpers;
 using restapi_crud_practice.Services.SAuth;
+using restapi_crud_practice.Services.SUserContext;
 
 namespace restapi_crud_practice.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class AuthController(IAuthService authService) : ControllerBase
+    public class AuthController(IAuthService authService, IUserContextService userContext) : ControllerBase
     {
         // POST /auth/register
         [HttpPost("register")]
@@ -41,41 +41,20 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
-            var clientId = ClientHelper.GetUserId(User);
+            var clientId = userContext.GetUserId(User);
             if (clientId == null)
             {
                 return Unauthorized("Could not determine user from token.");
             }
 
-            var result = await authService.RefreshTokensAsync(clientId.Value, request.RefreshToken);
-            if (result is null)
+            var (tokens, error) = await authService.RefreshTokensAsync(clientId.Value, request.RefreshToken);
+
+            if (error != null)
             {
-                return Unauthorized("Invalid refresh token.");
+                return Unauthorized(error);
             }
 
-            return Ok(result);
-        }
-
-        // GET /auth/authenticated-only
-        [Authorize]
-        [HttpGet]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public IActionResult AuthenticatedOnlyEndpoint()
-        {
-            return Ok("You are authenticated!");
-        }
-
-        // GET /auth/admin-only
-        [Authorize(Roles = "Admin")]
-        [HttpGet("admin-only")]
-        [ProducesResponseType(typeof(bool),StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public IActionResult AdminOnlyEndpoint()
-        {
-            return Ok("You are and admin!");
+            return Ok(tokens);
         }
 
         // POST /auth/check-password
@@ -83,19 +62,16 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("check-password")]
         public async Task<IActionResult> CheckPassword()
         {
-            var clientId = ClientHelper.GetUserId(User);
-            if (clientId == null)
-            {
-                return Unauthorized("Could not determine user from token.");
-            }
+            var clientId = userContext.GetUserId(User);
 
             var status = await authService.CheckPasswordAsync(clientId);
             if (status is null)
             {
                 return NotFound();
             }
-
-            return Ok(status);
+            else {
+                return Ok(status);
+            }
         }
 
         // POST /auth/change-password
@@ -103,19 +79,16 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto body)
         {
-            var clientId = ClientHelper.GetUserId(User);
-            if (clientId == null)
-            {
-                return Unauthorized("Could not determine user from token.");
-            }
+            var clientId = userContext.GetUserId(User);
 
-            var changed = await authService.ChangePasswordAsync(clientId, body.CurrentPassword, body.NewPassword);
+            var changed = await authService.UpdatePasswordAsync(clientId, body.CurrentPassword, body.NewPassword);
             if (!changed)
             {
-                return BadRequest("Current password is incorrect.");
+                return BadRequest("Current password is incorrect or user is not found.");
             }
-
-            return NoContent();
+            else {
+                return NoContent();
+            }
         }
 
         // POST /auth/signout
@@ -123,11 +96,7 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("signout")]
         public async Task<IActionResult> NewSignOut()
         {
-            var clientId = ClientHelper.GetUserId(User);
-            if (clientId == null)
-            {
-                return Unauthorized("Could not determine user from token.");
-            }
+            var clientId = userContext.GetUserId(User);
 
             var result = await authService.SignOutAsync(clientId);
             if (!result)
@@ -142,23 +111,32 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("profile")]
         public async Task<ActionResult<UserProfileDto>> CheckProfile()
         {
-            var clientId = ClientHelper.GetUserId(User);
-            if (clientId == null)
-            {
-                return Unauthorized("Could not determine user from token.");
-            }
+            var clientId = userContext.GetUserId(User);
 
             var result = await authService.GetProfileAsync(clientId);
-            return Ok(result);
+            if (result is null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
-
         // POST /auth/admin/profile/{userId}
         [Authorize(Roles = "Admin")]
         [HttpPost("admin/profile/{userId:guid}")]
         public async Task<ActionResult<UserProfileDto>> CheckProfile(Guid userId)
         {
             var result = await authService.GetProfileAsync(userId);
-            return result is null ? NotFound() : Ok(result);
+            if (result is null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         // POST /auth/admin/change-password
@@ -166,7 +144,7 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("admin/change-password")]
         public async Task<IActionResult> ChangeUserPassword([FromBody] AdminPasswordChangeDto body)
         {
-            var changed = await authService.AdminSetPasswordAsync(body.Id, body.NewPassword);
+            var changed = await authService.AdminUpdatePasswordAsync(body.Id, body.NewPassword);
             if (!changed)
             {
                 return BadRequest("Current password is incorrect.");
@@ -180,7 +158,7 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("admin/change-role")]
         public async Task<IActionResult> ChangeUserRole([FromBody] ChangeUserRoleDto body)
         {
-            var changed = await authService.ChangeUserRoleAsync(body.Id, body.NewRole);
+            var changed = await authService.UpdateUserRoleAsync(body.Id, body.NewRole);
             if (!changed)
             {
                 return BadRequest("Could not change user role.");
