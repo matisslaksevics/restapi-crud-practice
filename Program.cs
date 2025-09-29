@@ -17,111 +17,198 @@ using restapi_crud_practice.Services.SJwt;
 using restapi_crud_practice.Services.SToken;
 using restapi_crud_practice.Services.SUserContext;
 using System.Text;
+using Serilog;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
 
-var connString = builder.Configuration.GetConnectionString("connKey");
-builder.Services.AddDbContext<BookBorrowingContext>(options => options.UseNpgsql(connString));
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+try
+{
+    Log.Information("Starting web application");
+
+    builder.Host.UseSerilog();
+
+ 
+    builder.Services.AddControllers();
+
+
+    var connString = builder.Configuration.GetConnectionString("connKey");
+    builder.Services.AddDbContext<BookBorrowingContext>(options => options.UseNpgsql(connString));
+
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-            ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["AppSettings:Issuer"],
-            ValidateAudience = true,
-            ValidAudience = builder.Configuration["AppSettings:Audience"],
-            ValidateLifetime = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
-            ValidateIssuerSigningKey = true
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = builder.Configuration["AppSettings:Issuer"],
+                ValidateAudience = true,
+                ValidAudience = builder.Configuration["AppSettings:Audience"],
+                ValidateLifetime = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
+                ValidateIssuerSigningKey = true
+            };
+        });
+
+    builder.Services.AddScoped<IClientService, ClientService>();
+    builder.Services.AddScoped<IClientRepository, ClientRepository>();
+    builder.Services.AddScoped<IBookService, BookService>();
+    builder.Services.AddScoped<IBookRepository, BookRepository>();
+    builder.Services.AddScoped<IBorrowService, BorrowService>();
+    builder.Services.AddScoped<IBorrowRepository, BorrowRepository>();
+    builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+    builder.Services.AddScoped<ITokenService, TokenService>();
+    builder.Services.AddScoped<IUserContextService, UserContextService>();
+    builder.Services.AddScoped<BorrowHelper>();
+    builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("AppSettings"));
+    builder.Services.AddScoped<IJwtSettingsService, JwtSettingsService>();
+
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "My API",
+            Version = "v1"
+        });
+
+        var xml = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xml);
+        if (File.Exists(xmlPath))
+            c.IncludeXmlComments(xmlPath);
+
+        var jwtScheme = new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Enter: Bearer {your JWT access token}"
+        };
+
+        c.AddSecurityDefinition("Bearer", jwtScheme);
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
+    });
+
+    var app = builder.Build();
+
+    await CreatePostgresLogTableAsync(app.Configuration);
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
+            c.RoutePrefix = "swagger"; // browse at /swagger
+        });
+    }
+
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+        options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        {
+            diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+            diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+            diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress?.ToString());
         };
     });
-builder.Services.AddScoped<IClientService, ClientService>();
-builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IBookRepository, BookRepository>();
-builder.Services.AddScoped<IBorrowService, BorrowService>();
-builder.Services.AddScoped<IBorrowRepository, BorrowRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IUserContextService, UserContextService>();
-builder.Services.AddScoped<BorrowHelper>();
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("AppSettings"));
-builder.Services.AddScoped<IJwtSettingsService, JwtSettingsService>();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "My API",
-        Version = "v1"
-    });
 
-    var xml = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xml);
-    if (File.Exists(xmlPath))
-        c.IncludeXmlComments(xmlPath);
+    app.UseRouting();
+    app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.MapControllers();
 
-    var jwtScheme = new OpenApiSecurityScheme
+    using (var scope = app.Services.CreateScope())
     {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter: Bearer {your JWT access token}"
-    };
-
-    c.AddSecurityDefinition("Bearer", jwtScheme);
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+        var services = scope.ServiceProvider;
+        try
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
+            var authService = services.GetRequiredService<IAuthService>();
+            await DataSeeder.SeedAdminUserAsync(authService, builder.Configuration);
+            Log.Information("Data seeding completed successfully");
         }
-    });
-});
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An error occurred during data seeding");
+        }
+    }
 
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
+    Log.Information("Application started successfully");
+    await app.RunAsync();
+}
+catch (Exception ex)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
-        c.RoutePrefix = "swagger"; // browse at /swagger
-    });
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
 }
 
-app.UseRouting();
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-using (var scope = app.Services.CreateScope())
+static async Task CreatePostgresLogTableAsync(IConfiguration configuration)
 {
-    var services = scope.ServiceProvider;
     try
     {
-        var authService = services.GetRequiredService<IAuthService>();
-        await DataSeeder.SeedAdminUserAsync(authService, builder.Configuration);
+        var connectionString = configuration.GetConnectionString("LoggingDb");
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            Log.Warning("LoggingDb connection string not found. Using main database connection.");
+            connectionString = configuration.GetConnectionString("connKey");
+        }
+
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            using var connection = new NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var createTableSql = @"
+                CREATE TABLE IF NOT EXISTS ""Logs"" (
+                    ""Id"" SERIAL PRIMARY KEY,
+                    ""Message"" TEXT NULL,
+                    ""MessageTemplate"" TEXT NULL,
+                    ""Level"" VARCHAR(10) NULL,
+                    ""Timestamp"" TIMESTAMP WITH TIME ZONE NOT NULL,
+                    ""Exception"" TEXT NULL,
+                    ""Properties"" JSONB NULL,
+                    ""MachineName"" VARCHAR(255) NULL,
+                    ""ThreadId"" INTEGER NULL,
+                    ""Application"" VARCHAR(255) NULL
+                )";
+
+            using var command = new NpgsqlCommand(createTableSql, connection);
+            await command.ExecuteNonQueryAsync();
+
+            Log.Information("PostgreSQL logs table created or verified");
+        }
+        else
+        {
+            Log.Warning("No database connection string available for log table creation");
+        }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Seeding error: {ex.Message}");
-        Console.WriteLine($"Error details: {ex}");
+        Log.Warning(ex, "Could not create PostgreSQL logs table. File logging will still work.");
     }
 }
-
-await app.RunAsync();

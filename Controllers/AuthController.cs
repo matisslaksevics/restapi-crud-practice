@@ -12,6 +12,7 @@ namespace restapi_crud_practice.Controllers
     [ApiController]
     public class AuthController(IAuthService authService, IUserContextService userContext) : ControllerBase
     {
+
         // POST /auth/register
         [HttpPost("register")]
         public async Task<ActionResult<Client>> Register(UserDto request)
@@ -23,6 +24,7 @@ namespace restapi_crud_practice.Controllers
             }
 
             return Ok(user);
+
         }
         // POST /auth/login
         [HttpPost("login")]
