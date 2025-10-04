@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Dtos.Book;
 using restapi_crud_practice.Mapping;
 using restapi_crud_practice.Services.SBook;
-using restapi_crud_practice.Services.SClient;
 namespace restapi_crud_practice.Controllers
 {
     [Route("[controller]")]
