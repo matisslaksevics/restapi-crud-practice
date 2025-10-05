@@ -1,23 +1,24 @@
 ﻿using restapi_crud_practice.Dtos.Client;
 using Microsoft.AspNetCore.Mvc;
 using restapi_crud_practice.Services.SClient;
+using restapi_crud_practice.Services.SUserContext;
 using Microsoft.AspNetCore.Authorization;
 
 namespace restapi_crud_practice.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ClientController(IClientService clientService, ILogger<ClientController> logger) : ControllerBase
+    public class ClientController(IClientService clientService, ILogger<ClientController> logger, IUserContextService userContext) : ControllerBase
     {
-
         // GET /clients
         [Authorize(Roles = "Admin")]
         [HttpGet("admin/all-clients")]
         public async Task<ActionResult<List<ClientSummaryDto>>> GetAllClients()
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                 "GET AllClients requested by user {UserId} from IP {RemoteIp}",
-                User.FindFirst("sub")?.Value,
+                clientId,
                 HttpContext.Connection.RemoteIpAddress);
 
             try
@@ -35,7 +36,7 @@ namespace restapi_crud_practice.Controllers
                 logger.LogError(
                     ex,
                     "GET AllClients failed for user {UserId}",
-                    User.FindFirst("sub")?.Value);
+                    clientId);
                 throw;
             }
         }
@@ -45,20 +46,11 @@ namespace restapi_crud_practice.Controllers
         [HttpPut("admin/edit-client/{id}")]
         public async Task<IActionResult> UpdateClient(Guid id, [FromBody] UpdateClientDto updatedClient)
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                 "PUT UpdateClient requested for ID {ClientId} by user {UserId}",
                 id,
-                User.FindFirst("sub")?.Value);
-
-            if (!ModelState.IsValid)
-            {
-                logger.LogWarning(
-                    "PUT UpdateClient invalid model state for ID {ClientId}. Errors: {ModelErrors}",
-                    id,
-                    string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
-                return BadRequest(ModelState);
-            }
-
+                clientId);
             try
             {
                 var success = await clientService.UpdateClientAsync(id, updatedClient);
@@ -72,9 +64,6 @@ namespace restapi_crud_practice.Controllers
                 }
                 else
                 {
-                    logger.LogWarning(
-                        "PUT UpdateClient failed - Client ID {ClientId} not found",
-                        id);
                     return NotFound();
                 }
             }
@@ -93,10 +82,11 @@ namespace restapi_crud_practice.Controllers
         [HttpDelete("admin/delete-client/{id}")]
         public async Task<IActionResult> DeleteClient(Guid id)
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                 "DELETE DeleteClient requested for ID {ClientId} by user {UserId}",
                 id,
-                User.FindFirst("sub")?.Value);
+                clientId);
 
             try
             {
@@ -104,9 +94,6 @@ namespace restapi_crud_practice.Controllers
 
                 if (!success)
                 {
-                    logger.LogWarning(
-                        "DELETE DeleteClient failed - Client ID {ClientId} not found",
-                        id);
                     return NotFound($"Client with ID {id} not found.");
                 }
 

@@ -16,9 +16,10 @@ namespace restapi_crud_practice.Controllers
         [HttpGet("admin/all-borrows")]
         public async Task<ActionResult<List<BorrowSummaryDto>>> GetAllBorrows() 
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                "GET AllBorrows requested by admin {UserId} from IP {RemoteIp}",
-               User.FindFirst("sub")?.Value,
+               clientId,
                HttpContext.Connection.RemoteIpAddress);
 
             try
@@ -26,8 +27,8 @@ namespace restapi_crud_practice.Controllers
                 var books = await borrowService.GetAllBorrowsAsync();
 
                 logger.LogInformation(
-                    "GET AllBorrows successful. Returned {BorrowCount} borrows",
-                    books.Count);
+                    "GET AllBorrows successful for user {ClientId} Returned {BorrowCount} borrows",
+                    clientId, books.Count);
                 return books;
             }
             catch (Exception ex)
@@ -45,9 +46,10 @@ namespace restapi_crud_practice.Controllers
         [HttpGet("admin/get-borrow/{id}", Name = GetBorrowEndpointName)]
         public async Task<ActionResult<BorrowDetailsDto>> GetBorrowById(int id)
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                "GET BorrowById requested by admin {UserId} from IP {RemoteIp}",
-               User.FindFirst("sub")?.Value,
+               clientId,
                HttpContext.Connection.RemoteIpAddress);
 
             try
@@ -59,7 +61,7 @@ namespace restapi_crud_practice.Controllers
                 }
                 else
                 {
-                    logger.LogInformation("GET BorrowById successful.");
+                    logger.LogInformation("GET BorrowById successful for user {ClientId}", clientId);
                     return Ok(borrow.ToBorrowDetailsDto());
                 }
             }
@@ -78,9 +80,10 @@ namespace restapi_crud_practice.Controllers
         [HttpGet("admin/user-borrows/{id:guid}")]
         public async Task<ActionResult<List<BorrowSummaryDto>>> GetAllClientBorrows(Guid id)
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                "GET UserBorrows requested by admin {UserId} from IP {RemoteIp}",
-               User.FindFirst("sub")?.Value,
+               clientId,
                HttpContext.Connection.RemoteIpAddress);
 
             try
@@ -88,7 +91,7 @@ namespace restapi_crud_practice.Controllers
                 var result = await borrowService.GetAllClientBorrowsAsync(id);
                 if (result?.Any() == true)
                 {
-                    logger.LogInformation("GET UserBorrows successful.");
+                    logger.LogInformation("GET UserBorrows successful for user {ClientId}", clientId);
                     return Ok(result);
                 }
                 else
@@ -111,21 +114,21 @@ namespace restapi_crud_practice.Controllers
         [HttpGet("myborrows")]
         public async Task<ActionResult<List<BorrowSummaryDto>>> GetMyBorrows()
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                "GET MyBorrows requested by user {UserId} from IP {RemoteIp}",
-               User.FindFirst("sub")?.Value,
+               clientId,
                HttpContext.Connection.RemoteIpAddress);
 
             try
             {
-                var clientId = userContext.GetUserId(User);
                 if (clientId == null)
                 {
                     return Unauthorized("Could not determine user from token.");
                 }
                 else
                 {
-                    logger.LogInformation("GET MyBorrows successful.");
+                    logger.LogInformation("GET MyBorrows successful for user {ClientId}", clientId);
                     return await borrowService.GetAllClientBorrowsAsync(clientId);
                 }
             }
@@ -144,13 +147,13 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("new-borrow")]
         public async Task<ActionResult<BorrowSummaryDto>> CreateBorrow([FromBody] CreateUserBorrowDto newBorrow)
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                "POST CreateBorrow requested by user {UserId} from IP {RemoteIp}",
-               User.FindFirst("sub")?.Value,
+               clientId,
                HttpContext.Connection.RemoteIpAddress);
             try
             {
-                var clientId = userContext.GetUserId(User);
                 if (clientId == null)
                 {
                     return Unauthorized("Could not determine user from token.");
@@ -158,7 +161,7 @@ namespace restapi_crud_practice.Controllers
                 else
                 {
                     var createdBorrow = await borrowService.CreateBorrowAsync(newBorrow, clientId);
-                    logger.LogInformation("GET MyBorrows successful.");
+                    logger.LogInformation("GET MyBorrows successful for user {ClientId}", clientId);
                     return CreatedAtRoute(GetBorrowEndpointName, new { id = createdBorrow.Id }, createdBorrow);
                 }
             }
@@ -177,9 +180,10 @@ namespace restapi_crud_practice.Controllers
         [HttpPost("admin/new-borrow")]
         public async Task<ActionResult<BorrowSummaryDto>> AdminCreateBorrow([FromBody] CreateBorrowDto newBorrow)
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                "POST CreateBorrow requested by user {UserId} from IP {RemoteIp}",
-               User.FindFirst("sub")?.Value,
+               clientId,
                HttpContext.Connection.RemoteIpAddress);
             try
             {
@@ -190,7 +194,7 @@ namespace restapi_crud_practice.Controllers
                 }
                 else
                 {
-                    logger.LogInformation("POST CreateBorrow Successful.");
+                    logger.LogInformation("POST CreateBorrow successful for user {ClientId}", clientId);
                     return CreatedAtRoute(GetBorrowEndpointName, new { id = createdBorrow.Id }, createdBorrow);
                 }
             }
@@ -209,15 +213,16 @@ namespace restapi_crud_practice.Controllers
         [HttpPut("admin/edit-borrow/{id}")]
         public async Task<IActionResult> UpdateBorrow(int id, [FromBody] UpdateBorrowDto updatedBorrow)
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                "PUT EditBorrow requested by admin {UserId} from IP {RemoteIp}",
-               User.FindFirst("sub")?.Value,
+               clientId,
                HttpContext.Connection.RemoteIpAddress);
             try
             {
                 if (await borrowService.UpdateBorrowAsync(id, updatedBorrow))
                 {
-                    logger.LogInformation("PUT EditBorrow Successful.");
+                    logger.LogInformation("PUT EditBorrow successful user {ClientId}", clientId);
                     return NoContent();
                 }
                 else
@@ -240,9 +245,10 @@ namespace restapi_crud_practice.Controllers
         [HttpDelete("admin/delete-borrow/{id}")]
         public async Task<IActionResult> DeleteBorrow(int id)
         {
+            var clientId = userContext.GetUserId(User);
             logger.LogInformation(
                "DELETE DeleteBorrow requested by admin {UserId} from IP {RemoteIp}",
-               User.FindFirst("sub")?.Value,
+               clientId,
                HttpContext.Connection.RemoteIpAddress);
             try
             {
@@ -252,7 +258,7 @@ namespace restapi_crud_practice.Controllers
                     return NotFound($"Borrow record with ID {id} not found.");
                 } else
                 {
-                    logger.LogInformation("DELETE DeleteBorrow Successful.");
+                    logger.LogInformation("DELETE DeleteBorrow successful for user {ClientId} Rows affected: {RowsAffected}", clientId, rowsAffected);
                     return Ok(new { Message = $"Successfully deleted {rowsAffected} borrow record(s)." });
                 }
             }
