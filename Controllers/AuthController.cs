@@ -68,9 +68,9 @@ namespace restapi_crud_practice.Controllers
                 throw;
             }
         }
-        // POST /auth/refresh-token
+        // PUT /auth/refresh-token
         [Authorize]
-        [HttpPost("refresh-token")]
+        [HttpPut("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
             var clientId = userContext.GetUserId(User);
@@ -106,9 +106,9 @@ namespace restapi_crud_practice.Controllers
             }
         }
 
-        // POST /auth/check-password
+        // GET /auth/check-password
         [Authorize]
-        [HttpPost("check-password")]
+        [HttpGet("check-password")]
         public async Task<IActionResult> CheckPassword()
         {
             var clientId = userContext.GetUserId(User);
@@ -147,9 +147,9 @@ namespace restapi_crud_practice.Controllers
             }
         }
 
-        // POST /auth/change-password
+        // PUT /auth/change-password
         [Authorize]
-        [HttpPost("change-password")]
+        [HttpPut("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto body)
         {
             var clientId = userContext.GetUserId(User);
@@ -221,9 +221,9 @@ namespace restapi_crud_practice.Controllers
             }
         }
 
-        // POST /auth/profile
+        // GET /auth/profile
         [Authorize]
-        [HttpPost("profile")]
+        [HttpGet("profile")]
         public async Task<ActionResult<UserProfileDto>> CheckProfile()
         {
             var clientId = userContext.GetUserId(User);
@@ -258,9 +258,9 @@ namespace restapi_crud_practice.Controllers
                 throw;
             }
         }
-        // POST /auth/admin/profile/{userId}
+        // GET /auth/admin/profile/{userId}
         [Authorize(Roles = "Admin")]
-        [HttpPost("admin/profile/{userId:guid}")]
+        [HttpGet("admin/profile/{userId:guid}")]
         public async Task<ActionResult<UserProfileDto>> CheckProfile(Guid userId)
         {
             var clientId = userContext.GetUserId(User);
@@ -296,9 +296,9 @@ namespace restapi_crud_practice.Controllers
             }
         }
 
-        // POST /auth/admin/change-password
+        // PUT /auth/admin/change-password
         [Authorize(Roles = "Admin")]
-        [HttpPost("admin/change-password")]
+        [HttpPut("admin/change-password")]
         public async Task<IActionResult> ChangeUserPassword([FromBody] AdminPasswordChangeDto body)
         {
             var clientId = userContext.GetUserId(User);
@@ -333,9 +333,9 @@ namespace restapi_crud_practice.Controllers
             }
         }
 
-        // POST /auth/admin/change-role
+        // PUT /auth/admin/change-role
         [Authorize(Roles="Admin")]
-        [HttpPost("admin/change-role")]
+        [HttpPut("admin/change-role")]
         public async Task<IActionResult> ChangeUserRole([FromBody] ChangeUserRoleDto body)
         {
             var clientId = userContext.GetUserId(User);
