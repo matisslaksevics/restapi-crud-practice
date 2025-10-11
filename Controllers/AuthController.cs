@@ -37,7 +37,7 @@ namespace restapi_crud_practice.Controllers
                 logger.LogError(
                     ex,
                     "POST Register failed.");
-                throw;
+                return StatusCode(500, "An internal error occurred for POST Register");
             }
         }
         // POST /auth/login
@@ -65,7 +65,7 @@ namespace restapi_crud_practice.Controllers
                 logger.LogError(
                     ex,
                     "POST Login failed.");
-                throw;
+                return StatusCode(500, "An internal error occurred for POST Login");
             }
         }
         // PUT /auth/refresh-token
@@ -75,7 +75,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-                "POST RefreshToken requested by user {UserId} from IP {RemoteIp}",
+                "PUT RefreshToken requested by user {UserId} from IP {RemoteIp}",
                 clientId,
                 HttpContext.Connection.RemoteIpAddress);
             try
@@ -92,7 +92,7 @@ namespace restapi_crud_practice.Controllers
                     return Unauthorized(error);
                 } else 
                 {
-                    logger.LogInformation("POST RefreshToken successful for user {ClientId}", clientId);
+                    logger.LogInformation("PUT RefreshToken successful for user {ClientId}", clientId);
                     return Ok(tokens);
                 }
             }
@@ -100,9 +100,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "POST RefreshToken failed for user {UserId}",
+                    "PUT RefreshToken failed for user {UserId}",
                     clientId);
-                throw;
+                return StatusCode(500, "An internal error occurred for PUT RefreshToken");
             }
         }
 
@@ -113,7 +113,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-                "POST CheckPassword requested by user {UserId} from IP {RemoteIp}",
+                "GET CheckPassword requested by user {UserId} from IP {RemoteIp}",
                 clientId,
                 HttpContext.Connection.RemoteIpAddress);
             try
@@ -131,7 +131,7 @@ namespace restapi_crud_practice.Controllers
                 else
                 {
                     logger.LogInformation(
-               "POST CheckPassword successful for user {UserId} from IP {RemoteIp}",
+               "GET CheckPassword successful for user {UserId} from IP {RemoteIp}",
                clientId,
                HttpContext.Connection.RemoteIpAddress);
                     return Ok(status);
@@ -143,7 +143,7 @@ namespace restapi_crud_practice.Controllers
                     ex,
                     "POST CheckPassword failed for user {UserId}",
                     clientId);
-                throw;
+                return StatusCode(500, "An internal error occurred for GET CheckPassword");
             }
         }
 
@@ -154,7 +154,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-                "POST ChangePassword requested by user {UserId} from IP {RemoteIp}",
+                "PUT ChangePassword requested by user {UserId} from IP {RemoteIp}",
                 clientId,
                 HttpContext.Connection.RemoteIpAddress);
             try
@@ -171,7 +171,7 @@ namespace restapi_crud_practice.Controllers
                 }
                 else
                 {
-                    logger.LogInformation("POST ChangePassword successful for user {ClientId}", clientId);
+                    logger.LogInformation("PUT ChangePassword successful for user {ClientId}", clientId);
                     return NoContent();
                 }
             }
@@ -179,9 +179,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "POST ChangePassword failed for user {UserId}",
+                    "PUT ChangePassword failed for user {UserId}",
                     clientId);
-                throw;
+                return StatusCode(500, "An internal error occurred for PUT ChangePassword");
             }
         }
 
@@ -192,7 +192,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-                "POST ChangePassword requested by user {UserId} from IP {RemoteIp}",
+                "POST Signout requested by user {UserId} from IP {RemoteIp}",
                 clientId,
                 HttpContext.Connection.RemoteIpAddress);
             try
@@ -207,7 +207,7 @@ namespace restapi_crud_practice.Controllers
                 {
                     return BadRequest("Could not sign out user.");
                 } else {
-                    logger.LogInformation("POST SignOut successful for user {ClientId}", clientId);
+                    logger.LogInformation("POST Signout successful for user {ClientId}", clientId);
                     return NoContent();
                 }
             }
@@ -215,9 +215,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "POST ChangePassword failed for user {UserId}",
+                    "POST Signout failed for user {UserId}",
                     clientId);
-                throw;
+                return StatusCode(500, "An internal error occurred for POST Signout");
             }
         }
 
@@ -228,7 +228,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-                "POST Profile requested by user {UserId} from IP {RemoteIp}",
+                "GET Profile requested by user {UserId} from IP {RemoteIp}",
                 clientId,
                 HttpContext.Connection.RemoteIpAddress);
             try
@@ -245,7 +245,7 @@ namespace restapi_crud_practice.Controllers
                 }
                 else
                 {
-                    logger.LogInformation("POST Profile successful user {ClientId}", clientId);
+                    logger.LogInformation("GET Profile successful user {ClientId}", clientId);
                     return Ok(result);
                 }
             }
@@ -253,9 +253,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "POST Profile failed for user {UserId}",
+                    "GET Profile failed for user {UserId}",
                     clientId);
-                throw;
+                return StatusCode(500, "An internal error occurred for GET Profile");
             }
         }
         // GET /auth/admin/profile/{userId}
@@ -265,7 +265,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-                "POST CheckProfile requested by admin {UserId} from IP {RemoteIp}",
+                "GET CheckProfile requested by admin {UserId} from IP {RemoteIp}",
                 clientId,
                 HttpContext.Connection.RemoteIpAddress);
             try
@@ -282,7 +282,7 @@ namespace restapi_crud_practice.Controllers
                 }
                 else
                 {
-                    logger.LogInformation("POST CheckProfile successful for user {ClientId}", clientId);
+                    logger.LogInformation("GET CheckProfile successful for user {ClientId}", clientId);
                     return Ok(result);
                 }
             }
@@ -290,9 +290,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "POST CheckProfile failed for admin {UserId}",
+                    "GET CheckProfile failed for admin {UserId}",
                     clientId);
-                throw;
+                return StatusCode(500, "An internal error occurred for GET CheckProfile");
             }
         }
 
@@ -303,7 +303,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-                "POST AdminChangePassword requested by admin {UserId} from IP {RemoteIp}",
+                "PUT AdminChangePassword requested by admin {UserId} from IP {RemoteIp}",
                 clientId,
                 HttpContext.Connection.RemoteIpAddress);
             try
@@ -319,7 +319,7 @@ namespace restapi_crud_practice.Controllers
                     return BadRequest("Current password is incorrect.");
                 } else
                 {
-                    logger.LogInformation("POST AdminChangePassword successful for user {ClientId}", clientId);
+                    logger.LogInformation("PUT AdminChangePassword successful for user {ClientId}", clientId);
                     return NoContent();
                 }
             }
@@ -327,9 +327,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "POST AdminChangePassword failed for admin {UserId}",
+                    "PUT AdminChangePassword failed for admin {UserId}",
                     clientId);
-                throw;
+                return StatusCode(500, "An internal error occurred for PUT AdminChangePassword");
             }
         }
 
@@ -340,7 +340,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-                "POST ChangeUserRole requested by admin {UserId} from IP {RemoteIp}",
+                "PUT ChangeUserRole requested by admin {UserId} from IP {RemoteIp}",
                 clientId,
                 HttpContext.Connection.RemoteIpAddress);
             try
@@ -357,7 +357,7 @@ namespace restapi_crud_practice.Controllers
                 }
                 else 
                 {
-                    logger.LogInformation("POST ChangeUserRole successful for user {ClientId}", clientId);
+                    logger.LogInformation("PUT ChangeUserRole successful for user {ClientId}", clientId);
                     return NoContent();
                 }
             }
@@ -365,9 +365,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "POST ChangeUserRole failed for admin {UserId}",
+                    "PUT ChangeUserRole failed for admin {UserId}",
                     clientId);
-                throw;
+                return StatusCode(500, "An internal error occurred for PUT ChangeUserRole");
             }
         }
     }

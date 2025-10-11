@@ -11,35 +11,25 @@ namespace restapi_crud_practice.Repositories.RBook
 
         public async Task<List<Book>> GetAllBooksAsync()
         {
-            logger.LogInformation("GetAllBooksAsync requested.");
+            logger.LogInformation("Repository: GetAllBooksAsync requested.");
             try
             {
-
                 var result = await dbContext.Books.ToListAsync();
-
-                if (result is not null)
-                {
-                    logger.LogInformation("GetAllBooksAsync successful.");
-                    return result;
-                }
-                else
-                {
-                    logger.LogError("GetAllBooksAsync failed.");
-                    return null;
-                }
+                logger.LogInformation("Repository: GetAllBooksAsync successful.");
+                return result;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "GetAllBooksAsync failed.");
+                    "Repository: GetAllBooksAsync failed.");
                 throw;
             }
         }
 
         public async Task<Book?> GetBookByIdAsync(int id)
         {
-            logger.LogInformation("GetBookByIdAsync requested.");
+            logger.LogInformation("Repository: GetBookByIdAsync requested.");
             try
             {
 
@@ -47,12 +37,12 @@ namespace restapi_crud_practice.Repositories.RBook
 
                 if (result is not null)
                 {
-                    logger.LogInformation("GetBookByIdAsync successful.");
+                    logger.LogInformation("Repository: GetBookByIdAsync successful.");
                     return result;
                 }
                 else
                 {
-                    logger.LogError("GetBookByIdAsync failed.");
+                    logger.LogError("Repository: GetBookByIdAsync failed.");
                     return null;
                 }
             }
@@ -60,82 +50,73 @@ namespace restapi_crud_practice.Repositories.RBook
             {
                 logger.LogError(
                     ex,
-                    "GetBookByIdAsync failed.");
+                    "Repository: GetBookByIdAsync failed.");
                 throw;
             }
         }
         public async Task<Book> CreateBookAsync(Book book)
         {
-            logger.LogInformation("CreateBookAsync requested.");
+            logger.LogInformation("Repository: CreateBookAsync requested.");
             try
             {
                 dbContext.Books.Add(book);
-                var result = await dbContext.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    logger.LogInformation("CreateBookAsync successful.");
-                    return book;
-                }
-                else
-                {
-                    logger.LogError("CreateBookAsync failed.");
-                    return null;
-                }
+                await dbContext.SaveChangesAsync();
+                logger.LogInformation("Repository: CreateBookAsync successful.");
+                return book;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "CreateBookAsync failed.");
+                    "Repository: CreateBookAsync failed.");
                 throw;
             }
         }
         public async Task<bool> UpdateBookAsync(int id, Book book)
         {
-            logger.LogInformation("UpdateBookAsync requested.");
+            logger.LogInformation("Repository: UpdateBookAsync requested.");
             try
             {
                 var existingBook = await dbContext.Books.FindAsync(id);
                 if (existingBook is null)
                 {
-                    logger.LogError("UpdateBookAsync failed.");
+                    logger.LogError("Repository: UpdateBookAsync failed.");
                     return false;
                 }
 
                 dbContext.Entry(existingBook).CurrentValues.SetValues(book);
                 await dbContext.SaveChangesAsync();
-                logger.LogInformation("UpdateBookAsync successful.");
+                logger.LogInformation("Repository: UpdateBookAsync successful.");
                 return true;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "UpdateBookAsync failed.");
+                    "Repository: UpdateBookAsync failed.");
                 throw;
             }
         }
         public async Task<(bool Success, int RowsAffected)> DeleteBookAsync(int id)
         {
-            logger.LogInformation("DeleteBookAsync requested.");
+            logger.LogInformation("Repository: DeleteBookAsync requested.");
             try
             {
                 var result = await DbOperationHelper.ExecuteDeleteWithCountAsync(dbContext.Books, book => book.Id == id);
                 if (result is (false, 0))
                 {
-                    logger.LogError("DeleteBookAsync failed.");
+                    logger.LogError("Repository: DeleteBookAsync failed.");
                     return (false, 0);
                 }
 
-                logger.LogInformation("DeleteBookAsync successful.");
+                logger.LogInformation("Repository: DeleteBookAsync successful.");
                 return result;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "DeleteBookAsync failed.");
+                    "Repository: DeleteBookAsync failed.");
                 throw;
             }
         }

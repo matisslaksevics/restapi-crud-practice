@@ -37,7 +37,7 @@ namespace restapi_crud_practice.Controllers
                     ex,
                     "GET AllBooks failed for user {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for GET AllBooks");
             }
         } 
 
@@ -83,7 +83,7 @@ namespace restapi_crud_practice.Controllers
                     "GET GetBookById failed for ID {BookId} by user {UserId}",
                     id,
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for GET GetBookById");
             }
         }
 
@@ -117,7 +117,7 @@ namespace restapi_crud_practice.Controllers
                     ex,
                     "POST NewBook failed for user {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for POST NewBook");
             }
         }
 
@@ -149,9 +149,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "POST UpdateBook failed for user {UserId}",
+                    "PUT UpdateBook failed for user {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for PUT UpdateBook");
             }
         }
 
@@ -176,7 +176,7 @@ namespace restapi_crud_practice.Controllers
                 }
 
                 logger.LogInformation(
-                    "DELETE DeleteClient successful for ID {BookId}. Rows affected: {RowsAffected}",
+                    "DELETE DeleteBook successful for ID {BookId}. Rows affected: {RowsAffected}",
                     id, rowsAffected);
 
                 return Ok(new { Message = $"Successfully deleted {rowsAffected} books(s)." });
@@ -187,7 +187,7 @@ namespace restapi_crud_practice.Controllers
                     ex,
                     "DELETE DeleteBook failed for ID {BookId}",
                     id);
-                throw;
+                return StatusCode(500, "An internal error occurred for DELETE DeleteBook");
             }
         }
     }

@@ -13,7 +13,7 @@ namespace restapi_crud_practice.Repositories.RBorrow
 
         public async Task<List<BorrowSummaryDto>> GetAllBorrowsAsync()
         {
-            logger.LogInformation("GetAllBorrowsAsync requested.");
+            logger.LogInformation("Repository: GetAllBorrowsAsync requested.");
             try
             {
                 var result = await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true)
@@ -23,29 +23,21 @@ namespace restapi_crud_practice.Repositories.RBorrow
                 .ToBorrowSummaryDto())
                 .ToListAsync();
 
-                if (result is not null)
-                {
-                    logger.LogInformation("GetAllBorrowsAsync successful.");
-                    return result;
-                }
-                else
-                {
-                    logger.LogError("GetAllBorrowsAsync failed.");
-                    return null;
-                }
+                logger.LogInformation("Repository: GetAllBorrowsAsync successful.");
+                return result;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "GetAllBorrowsAsync failed.");
+                    "Repository: GetAllBorrowsAsync failed.");
                 throw;
             }
         }
 
         public async Task<Borrow?> GetBorrowByIdAsync(int id)
         {
-            logger.LogInformation("GetBorrowByIdAsync requested.");
+            logger.LogInformation("Repository: GetBorrowByIdAsync requested.");
             try
             {
                 var result = await dbContext.Borrows
@@ -55,12 +47,12 @@ namespace restapi_crud_practice.Repositories.RBorrow
 
                 if (result is not null)
                 {
-                    logger.LogInformation("GetBorrowByIdAsync successful.");
+                    logger.LogInformation("Repository: GetBorrowByIdAsync successful.");
                     return result;
                 }
                 else
                 {
-                    logger.LogError("GetBorrowByIdAsync failed.");
+                    logger.LogError("Repository: GetBorrowByIdAsync failed.");
                     return null;
                 }
             }
@@ -68,13 +60,13 @@ namespace restapi_crud_practice.Repositories.RBorrow
             {
                 logger.LogError(
                     ex,
-                    "GetBorrowByIdAsync failed.");
+                    "Repository: GetBorrowByIdAsync failed.");
                 throw;
             }
         }
         public async Task<List<BorrowSummaryDto>> GetAllClientBorrowsAsync(Guid? userId)
         {
-            logger.LogInformation("GetAllClientBorrowsAsync requested.");
+            logger.LogInformation("Repository: GetAllClientBorrowsAsync requested.");
             try
             {
                 var result = await dbContext.Borrows.Where(borrow => borrow.IsOverdue == true)
@@ -85,29 +77,21 @@ namespace restapi_crud_practice.Repositories.RBorrow
                 .ToBorrowSummaryDto())
                 .ToListAsync();
 
-                if (result is not null)
-                {
-                    logger.LogInformation("GetAllClientBorrowsAsync successful.");
-                    return result;
-                }
-                else
-                {
-                    logger.LogError("GetAllClientBorrowsAsync failed.");
-                    return null;
-                }
+                logger.LogInformation("Repository: GetAllClientBorrowsAsync successful.");
+                return result;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "GetAllClientBorrowsAsync failed.");
+                    "Repository: GetAllClientBorrowsAsync failed.");
                 throw;
             }
         }
 
         public async Task<Borrow?> CreateBorrowAsync(Borrow borrow)
         {
-            logger.LogInformation("CreateBorrowAsync requested.");
+            logger.LogInformation("Repository: CreateBorrowAsync requested.");
             try
             {
                 dbContext.Borrows.Add(borrow);
@@ -119,12 +103,12 @@ namespace restapi_crud_practice.Repositories.RBorrow
 
                 if (result is not null)
                 {
-                    logger.LogInformation("CreateBorrowAsync successful.");
+                    logger.LogInformation("Repository: CreateBorrowAsync successful.");
                     return result;
                 }
                 else
                 {
-                    logger.LogError("CreateBorrowAsync failed.");
+                    logger.LogError("Repository: CreateBorrowAsync failed.");
                     return null;
                 }
             }
@@ -132,13 +116,13 @@ namespace restapi_crud_practice.Repositories.RBorrow
             {
                 logger.LogError(
                     ex,
-                    "CreateBorrowAsync failed.");
+                    "Repository: CreateBorrowAsync failed.");
                 throw;
             }
         }
         public async Task<Client?> GetClientAsync(Guid? clientId)
         {
-            logger.LogInformation("GetClientAsync requested.");
+            logger.LogInformation("Repository: GetClientAsync requested.");
             try
             {
                 if (clientId == null)
@@ -149,12 +133,12 @@ namespace restapi_crud_practice.Repositories.RBorrow
 
                 if (result is not null)
                 {
-                    logger.LogInformation("GetClientAsync successful.");
+                    logger.LogInformation("Repository: GetClientAsync successful.");
                     return result;
                 }
                 else
                 {
-                    logger.LogError("GetClientAsync failed.");
+                    logger.LogError("Repository: GetClientAsync failed.");
                     return null;
                 }
             }
@@ -162,26 +146,26 @@ namespace restapi_crud_practice.Repositories.RBorrow
             {
                 logger.LogError(
                     ex,
-                    "GetClientAsync failed.");
+                    "Repository: GetClientAsync failed.");
                 throw;
             }
         }
 
         public async Task<Book?> GetBookAsync(int bookId)
         {
-            logger.LogInformation("GetBookAsync requested.");
+            logger.LogInformation("Repository: GetBookAsync requested.");
             try
             {
                 var result = await dbContext.Books.FindAsync(bookId);
 
                 if (result is not null)
                 {
-                    logger.LogInformation("GetBookAsync successful.");
+                    logger.LogInformation("Repository: GetBookAsync successful.");
                     return result;
                 }
                 else
                 {
-                    logger.LogError("GetBookAsync failed.");
+                    logger.LogError("Repository: GetBookAsync failed.");
                     return null;
                 }
             }
@@ -189,14 +173,14 @@ namespace restapi_crud_practice.Repositories.RBorrow
             {
                 logger.LogError(
                     ex,
-                    "GetBookAsync failed.");
+                    "Repository: GetBookAsync failed.");
                 throw;
             }
         }
 
         public async Task<bool> UpdateBorrowAsync(int id, Borrow borrow)
         {
-            logger.LogInformation("UpdateBorrowAsync requested.");
+            logger.LogInformation("Repository: UpdateBorrowAsync requested.");
             try
             {
                 var existingBorrow = await dbContext.Borrows.FindAsync(id);
@@ -213,12 +197,12 @@ namespace restapi_crud_practice.Repositories.RBorrow
 
                 if (result > 0)
                 {
-                    logger.LogInformation("UpdateBorrowAsync successful.");
+                    logger.LogInformation("Repository: UpdateBorrowAsync successful.");
                     return true;
                 }
                 else
                 {
-                    logger.LogError("UpdateBorrowAsync failed.");
+                    logger.LogError("Repository: UpdateBorrowAsync failed.");
                     return false;
                 }
             }
@@ -226,25 +210,25 @@ namespace restapi_crud_practice.Repositories.RBorrow
             {
                 logger.LogError(
                     ex,
-                    "UpdateBorrowAsync failed.");
+                    "Repository: UpdateBorrowAsync failed.");
                 throw;
             }
         }
         public async Task<(bool Success, int RowsAffected)> DeleteBorrowAsync(int id)
         {
-            logger.LogInformation("DeleteBorrowAsync requested.");
+            logger.LogInformation("Repository: DeleteBorrowAsync requested.");
             try
             {
                 var result = await DbOperationHelper.ExecuteDeleteWithCountAsync(dbContext.Borrows, borrow => borrow.Id == id);
 
                 if (result is not (false, 0))
                 {
-                    logger.LogInformation("DeleteBorrowAsync successful.");
+                    logger.LogInformation("Repository: DeleteBorrowAsync successful.");
                     return result;
                 }
                 else
                 {
-                    logger.LogError("DeleteBorrowAsync failed.");
+                    logger.LogError("Repository: DeleteBorrowAsync failed.");
                     return (false, 0);
                 }
             }
@@ -252,7 +236,7 @@ namespace restapi_crud_practice.Repositories.RBorrow
             {
                 logger.LogError(
                     ex,
-                    "DeleteBorrowAsync failed.");
+                    "Repository: DeleteBorrowAsync failed.");
                 throw;
             }
         }

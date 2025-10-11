@@ -10,19 +10,19 @@ namespace restapi_crud_practice.Repositories
 
         public async Task<Client?> GetClientByUsernameAsync(string username)
         {
-            logger.LogInformation("GetClientByUsernameAsync requested.");
+            logger.LogInformation("Repository: GetClientByUsernameAsync requested.");
             try
             {
                 var result = await dbContext.Clients.FirstOrDefaultAsync(u => u.Username == username);
 
                 if (result is not null)
                 {
-                    logger.LogInformation("GetClientByUsernameAsync successful.");
+                    logger.LogInformation("Repository: GetClientByUsernameAsync successful.");
                     return result;
                 }
                 else
                 {
-                    logger.LogError("GetClientByUsernameAsync failed.");
+                    logger.LogError("Repository: GetClientByUsernameAsync failed.");
                     return null;
                 }
             }
@@ -30,26 +30,26 @@ namespace restapi_crud_practice.Repositories
             {
                 logger.LogError(
                     ex,
-                    "GetClientByUsernameAsync failed.");
+                    "Repository: GetClientByUsernameAsync failed.");
                 throw;
             }
         }
 
         public async Task<Client?> GetClientByIdAsync(Guid id)
         {
-            logger.LogInformation("GetClientByIdAsync requested.");
+            logger.LogInformation("Repository: GetClientByIdAsync requested.");
             try
             {
                 var result = await dbContext.Clients.FindAsync(id);
 
                 if (result is not null)
                 {
-                    logger.LogInformation("GetClientByIdAsync successful.");
+                    logger.LogInformation("Repository: GetClientByIdAsync successful.");
                     return result;
                 }
                 else
                 {
-                    logger.LogError("GetClientByIdAsync failed.");
+                    logger.LogError("Repository: GetClientByIdAsync failed.");
                     return null;
                 }
             }
@@ -57,26 +57,26 @@ namespace restapi_crud_practice.Repositories
             {
                 logger.LogError(
                     ex,
-                    "GetClientByIdAsync failed.");
+                    "Repository: GetClientByIdAsync failed.");
                 throw;
             }
         }
 
         public async Task<bool> UsernameExistsAsync(string username)
         {
-            logger.LogInformation("UsernameExistsAsync requested.");
+            logger.LogInformation("Repository: UsernameExistsAsync requested.");
             try
             {
                 var result = await dbContext.Clients.AnyAsync(u => u.Username == username);
 
                 if (result)
                 {
-                    logger.LogInformation("UsernameExistsAsync successful.");
+                    logger.LogInformation("Repository: UsernameExistsAsync successful.");
                     return result;
                 }
                 else
                 {
-                    logger.LogError("UsernameExistsAsync failed.");
+                    logger.LogError("Repository: UsernameExistsAsync failed.");
                     return false;
                 }
             }
@@ -84,14 +84,14 @@ namespace restapi_crud_practice.Repositories
             {
                 logger.LogError(
                     ex,
-                    "UsernameExistsAsync failed.");
+                    "Repository: UsernameExistsAsync failed.");
                 throw;
             }
         }
 
         public async Task<Client?> CreateClientAsync(Client client)
         {
-            logger.LogInformation("CreateClientAsync requested.");
+            logger.LogInformation("Repository: CreateClientAsync requested.");
             try
             {
                 var user = await dbContext.Clients.AddAsync(client);
@@ -99,12 +99,12 @@ namespace restapi_crud_practice.Repositories
 
                 if (result > 0)
                 {
-                    logger.LogInformation("CreateClientAsync successful.");
+                    logger.LogInformation("Repository: CreateClientAsync successful.");
                     return user.Entity;
                 }
                 else
                 {
-                    logger.LogError("CreateClientAsync failed.");
+                    logger.LogError("Repository: CreateClientAsync failed.");
                     return null;
                 }
             }
@@ -112,14 +112,14 @@ namespace restapi_crud_practice.Repositories
             {
                 logger.LogError(
                     ex,
-                    "CreateClientAsync failed.");
+                    "Repository: CreateClientAsync failed.");
                 throw;
             }
         }
 
         public async Task<bool> UpdateClientAsync(Client client)
         {
-            logger.LogInformation("UpdateClientAsync requested.");
+            logger.LogInformation("Repository: UpdateClientAsync requested.");
             try
             {
                 dbContext.Clients.Update(client);
@@ -127,12 +127,12 @@ namespace restapi_crud_practice.Repositories
 
                 if (result > 0)
                 {
-                    logger.LogInformation("UpdateClientAsync successful.");
+                    logger.LogInformation("Repository: UpdateClientAsync successful.");
                     return true;
                 }
                 else
                 {
-                    logger.LogError("UpdateClientAsync failed.");
+                    logger.LogError("Repository: UpdateClientAsync failed.");
                     return false;
                 }
             }
@@ -140,13 +140,13 @@ namespace restapi_crud_practice.Repositories
             {
                 logger.LogError(
                     ex,
-                    "UpdateClientAsync failed.");
+                    "Repository: UpdateClientAsync failed.");
                 throw;
             }
         }
         public async Task<string?> GetHashedPasswordAsync(Guid userId)
         {
-            logger.LogInformation("GetHashedPasswordAsync requested.");
+            logger.LogInformation("Repository: GetHashedPasswordAsync requested.");
             try
             {
                 var user = await dbContext.Clients
@@ -156,12 +156,12 @@ namespace restapi_crud_practice.Repositories
 
                 if (user is not null)
                 {
-                    logger.LogInformation("GetHashedPasswordAsync successful.");
+                    logger.LogInformation("Repository: GetHashedPasswordAsync successful.");
                     return user;
                 }
                 else
                 {
-                    logger.LogError("GetHashedPasswordAsync failed.");
+                    logger.LogError("Repository: GetHashedPasswordAsync failed.");
                     return null;
                 }
             }
@@ -169,7 +169,7 @@ namespace restapi_crud_practice.Repositories
             {
                 logger.LogError(
                     ex,
-                    "GetHashedPasswordAsync failed.");
+                    "Repository: GetHashedPasswordAsync failed.");
                 throw;
             }
         }

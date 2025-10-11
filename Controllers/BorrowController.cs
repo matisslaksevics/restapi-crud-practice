@@ -27,7 +27,7 @@ namespace restapi_crud_practice.Controllers
                 var books = await borrowService.GetAllBorrowsAsync();
 
                 logger.LogInformation(
-                    "GET AllBorrows successful for user {ClientId} Returned {BorrowCount} borrows",
+                    "GET AllBorrows successful for admin {ClientId} Returned {BorrowCount} borrows",
                     clientId, books.Count);
                 return books;
             }
@@ -37,7 +37,7 @@ namespace restapi_crud_practice.Controllers
                     ex,
                     "GET AllBorrows failed for admin {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for GET AllBorrows");
             }
         }
 
@@ -48,7 +48,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-               "GET BorrowById requested by admin {UserId} from IP {RemoteIp}",
+               "GET GetBorrowById requested by admin {UserId} from IP {RemoteIp}",
                clientId,
                HttpContext.Connection.RemoteIpAddress);
 
@@ -61,7 +61,7 @@ namespace restapi_crud_practice.Controllers
                 }
                 else
                 {
-                    logger.LogInformation("GET BorrowById successful for user {ClientId}", clientId);
+                    logger.LogInformation("GET GetBorrowById successful for admin {ClientId}", clientId);
                     return Ok(borrow.ToBorrowDetailsDto());
                 }
             }
@@ -69,9 +69,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "GET BorrowById failed for admin {UserId}",
+                    "GET GetBorrowById failed for admin {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for GET GetBorrowById");
             }
         }
 
@@ -91,7 +91,7 @@ namespace restapi_crud_practice.Controllers
                 var result = await borrowService.GetAllClientBorrowsAsync(id);
                 if (result?.Any() == true)
                 {
-                    logger.LogInformation("GET UserBorrows successful for user {ClientId}", clientId);
+                    logger.LogInformation("GET UserBorrows successful for admin {ClientId}", clientId);
                     return Ok(result);
                 }
                 else
@@ -103,9 +103,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "GET BorrowById failed for admin {UserId}",
+                    "GET UserBorrows failed for admin {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for GET UserBorrows");
             }
         }
 
@@ -138,7 +138,7 @@ namespace restapi_crud_practice.Controllers
                     ex,
                     "GET MyBorrows failed for user {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for GET MyBorrows");
             }
         }
 
@@ -161,7 +161,7 @@ namespace restapi_crud_practice.Controllers
                 else
                 {
                     var createdBorrow = await borrowService.CreateBorrowAsync(newBorrow, clientId);
-                    logger.LogInformation("GET MyBorrows successful for user {ClientId}", clientId);
+                    logger.LogInformation("POST CreateBorrow successful for user {ClientId}", clientId);
                     return CreatedAtRoute(GetBorrowEndpointName, new { id = createdBorrow.Id }, createdBorrow);
                 }
             }
@@ -169,9 +169,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "GET MyBorrows failed for user {UserId}",
+                    "POST CreateBorrow failed for user {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for POST CreateBorrow");
             }
         }
 
@@ -182,7 +182,7 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-               "POST CreateBorrow requested by user {UserId} from IP {RemoteIp}",
+               "POST AdminCreateBorrow requested by admin {UserId} from IP {RemoteIp}",
                clientId,
                HttpContext.Connection.RemoteIpAddress);
             try
@@ -194,7 +194,7 @@ namespace restapi_crud_practice.Controllers
                 }
                 else
                 {
-                    logger.LogInformation("POST CreateBorrow successful for user {ClientId}", clientId);
+                    logger.LogInformation("POST AdminCreateBorrow successful for admin {ClientId}", clientId);
                     return CreatedAtRoute(GetBorrowEndpointName, new { id = createdBorrow.Id }, createdBorrow);
                 }
             }
@@ -202,9 +202,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "POST CreateBorrow failed for user {UserId}",
+                    "POST AdminCreateBorrow failed for admin {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for POST AdminCreateBorrow");
             }
         }
 
@@ -215,14 +215,14 @@ namespace restapi_crud_practice.Controllers
         {
             var clientId = userContext.GetUserId(User);
             logger.LogInformation(
-               "PUT EditBorrow requested by admin {UserId} from IP {RemoteIp}",
+               "PUT UpdateBorrow requested by admin {UserId} from IP {RemoteIp}",
                clientId,
                HttpContext.Connection.RemoteIpAddress);
             try
             {
                 if (await borrowService.UpdateBorrowAsync(id, updatedBorrow))
                 {
-                    logger.LogInformation("PUT EditBorrow successful user {ClientId}", clientId);
+                    logger.LogInformation("PUT UpdateBorrow successful admin {ClientId}", clientId);
                     return NoContent();
                 }
                 else
@@ -234,9 +234,9 @@ namespace restapi_crud_practice.Controllers
             {
                 logger.LogError(
                     ex,
-                    "PUT EditBorrow failed for admin {UserId}",
+                    "PUT UpdateBorrow failed for admin {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for PUT UpdateBorrow");
             }
         }
 
@@ -258,7 +258,7 @@ namespace restapi_crud_practice.Controllers
                     return NotFound($"Borrow record with ID {id} not found.");
                 } else
                 {
-                    logger.LogInformation("DELETE DeleteBorrow successful for user {ClientId} Rows affected: {RowsAffected}", clientId, rowsAffected);
+                    logger.LogInformation("DELETE DeleteBorrow successful for admin {ClientId} Rows affected: {RowsAffected}", clientId, rowsAffected);
                     return Ok(new { Message = $"Successfully deleted {rowsAffected} borrow record(s)." });
                 }
             }
@@ -268,7 +268,7 @@ namespace restapi_crud_practice.Controllers
                     ex,
                     "DELETE DeleteBorrow failed for admin {UserId}",
                     User.FindFirst("sub")?.Value);
-                throw;
+                return StatusCode(500, "An internal error occurred for DELETE DeleteBorrow");
             }
         }
     }

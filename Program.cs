@@ -128,9 +128,9 @@ try
         options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
         options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
         {
-            diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+            diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value ?? "unknown");
             diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
-            diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress?.ToString());
+            diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
         };
     });
 

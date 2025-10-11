@@ -11,59 +11,132 @@ using System.Text;
 
 namespace restapi_crud_practice.Services.SToken
 {
-    public class TokenService(IAuthRepository authRepository, IJwtSettingsService jwtSettings, BookBorrowingContext dbContext) : ITokenService
+    public class TokenService(IAuthRepository authRepository, IJwtSettingsService jwtSettings, BookBorrowingContext dbContext, ILogger<TokenService> logger) : ITokenService
     {
         private readonly IAuthRepository _authRepository = authRepository;
         private readonly BookBorrowingContext dbContext = dbContext;
 
         public async Task<TokenResponseDto> CreateTokenResponseAsync(Client user)
         {
-            return new TokenResponseDto
+            logger.LogInformation("Service: CreateTokenResponseAsync requested.");
+            try
             {
-                AccessToken = CreateToken(user),
-                RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
-            };
+                var result =  new TokenResponseDto
+                {
+                    AccessToken = CreateToken(user),
+                    RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
+                };
+
+                logger.LogInformation("Service: CreateTokenResponseAsync successful.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Service: CreateTokenResponseAsync failed.");
+                throw;
+            }
         }
 
         public async Task<TokenResponseDto?> RefreshTokensAsync(Guid userId, string refreshToken)
         {
-            var user = await ValidateRefreshTokenAsync(userId, refreshToken);
-            if (user is null)
+            logger.LogInformation("Service: RefreshTokensAsync requested.");
+            try
             {
-                return null;
+                var user = await ValidateRefreshTokenAsync(userId, refreshToken);
+                if (user is null)
+                {
+                    logger.LogError("Service: RefreshTokensAsync failed.");
+                    return null;
+                } else
+                {
+                    logger.LogInformation("Service: RefreshTokensAsync successful.");
+                    return await CreateTokenResponseAsync(user);
+                }
             }
-
-            return await CreateTokenResponseAsync(user);
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Service: RefreshTokensAsync failed.");
+                throw;
+            }
         }
 
         private async Task<Client?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
         {
-            var user = await _authRepository.GetClientByIdAsync(userId);
-            if (user is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow || string.IsNullOrEmpty(user.RefreshToken) || user.RefreshToken != refreshToken)
+            logger.LogInformation("Service: ValidateRefreshTokenAsync requested.");
+            try
             {
-                return null;
+                var user = await _authRepository.GetClientByIdAsync(userId);
+                if (user is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow || string.IsNullOrEmpty(user.RefreshToken) || user.RefreshToken != refreshToken)
+                {
+                    logger.LogError("Service: ValidateRefreshTokenAsync failed.");
+                    return null;
+                } else
+                {
+                    logger.LogInformation("Service: ValidateRefreshTokenAsync successful.");
+                    return user;
+                }
             }
-
-            return user;
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Service: ValidateRefreshTokenAsync failed.");
+                throw;
+            }
         }
 
         public string GenerateRefreshToken()
         {
-            var randomNumber = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
+            logger.LogInformation("Service: GenerateRefreshToken requested.");
+            try
+            {
+                var randomNumber = new byte[32];
+                using var rng = RandomNumberGenerator.Create();
+                rng.GetBytes(randomNumber);
+                logger.LogInformation("Service: GenerateRefreshToken successful.");
+                return Convert.ToBase64String(randomNumber);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Service: GenerateRefreshToken failed.");
+                throw;
+            }
         }
 
         private async Task<string> GenerateAndSaveRefreshTokenAsync(Client user)
         {
-            var refreshToken = GenerateRefreshToken();
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-
-            await _authRepository.UpdateClientAsync(user);
-            await dbContext.SaveChangesAsync();
-            return refreshToken;
+            logger.LogInformation("Service: GenerateAndSaveRefreshTokenAsync requested.");
+            try
+            {
+                var refreshToken = GenerateRefreshToken();
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+                var updated = await _authRepository.UpdateClientAsync(user);
+                if(!updated)
+                {
+                    logger.LogError("Service: GenerateAndSaveRefreshTokenAsync failed.");
+                }
+                var saved = await dbContext.SaveChangesAsync();
+                if (saved == 0)
+                {
+                    logger.LogError("Service: GenerateAndSaveRefreshTokenAsync failed.");
+                }
+                logger.LogInformation("Service: GenerateAndSaveRefreshTokenAsync successful.");
+                return refreshToken;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Service: GenerateAndSaveRefreshTokenAsync failed.");
+                throw;
+            }
         }
 
         public string CreateToken(Client user)

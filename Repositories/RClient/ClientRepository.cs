@@ -13,29 +13,21 @@ namespace restapi_crud_practice.Repositories.RClient
 
         public async Task<List<ClientSummaryDto>> GetAllClientsAsync()
         {
-            logger.LogInformation("GetAllClientsAsync requested.");
+            logger.LogInformation("Repository: GetAllClientsAsync requested.");
             try
-            {
-
+            { 
                 var result = await dbContext.Clients
                 .Select(client => client.ToClientSummaryDto())
                 .ToListAsync();
 
-                if (result is not null)
-                {
-                    logger.LogInformation("GetAllClientsAsync successful.");
-                    return result;
-                } else 
-                {
-                    logger.LogError("GetAllClientsAsync failed.");
-                    return null;
-                }
+                logger.LogInformation("Repository: GetAllClientsAsync successful.");
+                return result;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "GetAllClientsAsync failed.");
+                    "Repository: GetAllClientsAsync failed.");
                 throw;
             }
         }
@@ -43,7 +35,7 @@ namespace restapi_crud_practice.Repositories.RClient
         public async Task<Client?> GetClientByIdAsync(Guid id)
         {
             var client = await dbContext.Clients.FindAsync(id);
-            logger.LogInformation("GetClientByIdAsync requested.");
+            logger.LogInformation("Repository: GetClientByIdAsync requested.");
             try
             {
 
@@ -53,12 +45,12 @@ namespace restapi_crud_practice.Repositories.RClient
 
                 if (result is not null)
                 {
-                    logger.LogInformation("GetClientByIdAsync successful.");
+                    logger.LogInformation("Repository: GetClientByIdAsync successful.");
                     return client;
                 }
                 else
                 {
-                    logger.LogError("GetClientByIdAsync failed.");
+                    logger.LogError("Repository: GetClientByIdAsync failed.");
                     return null;
                 }
             }
@@ -66,84 +58,75 @@ namespace restapi_crud_practice.Repositories.RClient
             {
                 logger.LogError(
                     ex,
-                    "GetClientByIdAsync failed.");
+                    "Repository: GetClientByIdAsync failed.");
                 throw;
             }
         }
 
         public async Task<Client> CreateClientAsync(Client client)
         {
-            logger.LogInformation("CreateClientAsync requested.");
+            logger.LogInformation("Repository: CreateClientAsync requested.");
             try
             {
                 dbContext.Clients.Add(client);
-                var result = await dbContext.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    logger.LogInformation("CreateClientAsync successful.");
-                    return client;
-                }
-                else
-                {
-                    logger.LogError("CreateClientAsync failed.");
-                    return null;
-                }
+                await dbContext.SaveChangesAsync();
+                logger.LogInformation("Repository: CreateClientAsync successful.");
+                return client;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "CreateClientAsync failed.");
+                    "Repository: CreateClientAsync failed.");
                 throw;
             }
         }
 
         public async Task<bool> UpdateClientAsync(Guid id, Client client)
         {
-            logger.LogInformation("UpdateClientAsync requested.");
+            logger.LogInformation("Repository: UpdateClientAsync requested.");
             try
             {
                 var existingClient = await dbContext.Clients.FindAsync(id);
                 if (existingClient is null)
                 {
-                    logger.LogError("UpdateClientAsync failed.");
+                    logger.LogError("Repository: UpdateClientAsync failed.");
                     return false;
                 }
 
                 dbContext.Entry(existingClient).CurrentValues.SetValues(client);
                 await dbContext.SaveChangesAsync();
-                logger.LogInformation("UpdateClientAsync successful.");
+                logger.LogInformation("Repository: UpdateClientAsync successful.");
                 return true;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "UpdateClientAsync failed.");
+                    "Repository: UpdateClientAsync failed.");
                 throw;
             }
         }
         public async Task<(bool Success, int RowsAffected)> DeleteClientAsync(Guid id)
         {
-            logger.LogInformation("DeleteClientAsync requested.");
+            logger.LogInformation("Repository: DeleteClientAsync requested.");
             try
             {
                 var result = await DbOperationHelper.ExecuteDeleteWithCountAsync(dbContext.Clients, client => client.Id == id);
                 if (result is (false, 0))
                 {
-                    logger.LogError("DeleteClientAsync failed.");
+                    logger.LogError("Repository: DeleteClientAsync failed.");
                     return (false, 0);
                 }
 
-                logger.LogInformation("DeleteClientAsync successful.");
+                logger.LogInformation("Repository: DeleteClientAsync successful.");
                 return result;
             }
             catch (Exception ex)
             {
                 logger.LogError(
                     ex,
-                    "UpdateClientAsync failed.");
+                    "Repository: UpdateClientAsync failed.");
                 throw;
             }
         }
