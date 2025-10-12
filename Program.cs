@@ -14,6 +14,7 @@ using restapi_crud_practice.Services.SBook;
 using restapi_crud_practice.Services.SBorrow;
 using restapi_crud_practice.Services.SClient;
 using restapi_crud_practice.Services.SJwt;
+using restapi_crud_practice.Services.SMyLogger;
 using restapi_crud_practice.Services.SToken;
 using restapi_crud_practice.Services.SUserContext;
 using System.Text;
@@ -38,6 +39,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true
         };
     });
+
+builder.Services.AddScoped<IMyLoggerService, MyLoggerService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IBookService, BookService>();
