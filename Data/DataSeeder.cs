@@ -27,9 +27,11 @@ namespace restapi_crud_practice.Data
                 var adminUser = await authService.RegisterAsync(adminUserDto);
                 if (adminUser == null)
                 {
-                    Console.WriteLine("Admin user already exists or creation failed.");
+                    Console.WriteLine("Admin user creation failed or already exists!");
                     return;
                 }
+
+
 
                 await authService.UpdateUserRoleAsync(adminUser.Id, "Admin");
                 Console.WriteLine("Admin user created successfully!");
