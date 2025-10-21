@@ -2,7 +2,7 @@
 public record class BorrowDetailsDto
 (
     int Id,
-    int ClientId,
+    Guid ClientId,
     int BookId,
     DateOnly BorrowDate,
     DateOnly? ReturnDate,

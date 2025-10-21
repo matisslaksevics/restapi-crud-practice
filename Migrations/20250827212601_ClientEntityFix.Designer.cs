@@ -9,11 +9,11 @@ using restapi_crud_practice.Data;
 
 #nullable disable
 
-namespace restapi_crud_practice.Data.Migrations
+namespace restapi_crud_practice.Migrations
 {
     [DbContext(typeof(BookBorrowingContext))]
-    [Migration("20250806135911_InitialSetup")]
-    partial class InitialSetup
+    [Migration("20250827212601_ClientEntityFix")]
+    partial class ClientEntityFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,8 +59,11 @@ namespace restapi_crud_practice.Data.Migrations
                     b.Property<DateOnly>("BorrowDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("ClientId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool?>("IsOverdue")
+                        .HasColumnType("boolean");
 
                     b.Property<DateOnly?>("ReturnDate")
                         .HasColumnType("date");
@@ -76,21 +79,31 @@ namespace restapi_crud_practice.Data.Migrations
 
             modelBuilder.Entity("restapi_crud_practice.Entities.Client", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("PasswordChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PasswordMaxAgeDays")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text");
 
-                    b.Property<string>("Email")
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
 

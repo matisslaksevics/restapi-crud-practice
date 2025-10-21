@@ -7,7 +7,6 @@ namespace restapi_crud_practice.Data
 		public DbSet<Client> Clients => Set<Client>();
 		public DbSet<Book> Books => Set<Book>();
 		public DbSet<Borrow> Borrows => Set<Borrow>();
-
-	}
+    }
 }
 

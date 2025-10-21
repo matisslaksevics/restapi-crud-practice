@@ -8,7 +8,7 @@ namespace restapi_crud_practice.Services.SBook
         Task<List<BookSummaryDto>> GetAllBooksAsync();
         Task<Book?> GetBookByIdAsync(int id);
         Task<BookSummaryDto> CreateBookAsync(CreateBookDto newBook);
-        Task<bool> UpdateBookAsync(int id, UpdateBookDto updatedBook);
-        Task<int> DeleteBookAsync(int id);
+        Task<BookSummaryDto?> UpdateBookAsync(int id, UpdateBookDto updatedBookDto);
+        Task<(bool Success, int RowsAffected)> DeleteBookAsync(int id);
     }
 }

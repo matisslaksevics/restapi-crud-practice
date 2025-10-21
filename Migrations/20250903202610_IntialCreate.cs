@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace restapi_crud_practice.Data.Migrations
+namespace restapi_crud_practice.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatedStructure : Migration
+    public partial class IntialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

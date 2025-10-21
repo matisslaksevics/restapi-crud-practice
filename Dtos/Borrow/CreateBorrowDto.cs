@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace restapi_crud_practice.Dtos.Borrow;
 public record class CreateBorrowDto
-(
-    int ClientId,
-    int BookId,
-    [Required]DateOnly BorrowDate,
-    DateOnly? ReturnDate,
-    bool? IsOverdue
-);
+{
+    public Guid ClientId {get; set;}
+    public int BookId { get; set; }
+    public required DateOnly BorrowDate { get; set; }
+    public DateOnly? ReturnDate { get; set; }
+    public bool? IsOverdue { get; internal set; }
+}

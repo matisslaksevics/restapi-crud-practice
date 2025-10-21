@@ -4,10 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace restapi_crud_practice.Data.Migrations
+namespace restapi_crud_practice.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSetup : Migration
+    public partial class ClientEntityFix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,11 +30,14 @@ namespace restapi_crud_practice.Data.Migrations
                 name: "Clients",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    FirstName = table.Column<string>(type: "text", nullable: false),
-                    LastName = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<string>(type: "text", nullable: false),
+                    RefreshToken = table.Column<string>(type: "text", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    PasswordChangedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PasswordMaxAgeDays = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,10 +50,11 @@ namespace restapi_crud_practice.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ClientId = table.Column<int>(type: "integer", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
                     BookId = table.Column<int>(type: "integer", nullable: false),
                     BorrowDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ReturnDate = table.Column<DateOnly>(type: "date", nullable: true)
+                    ReturnDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    IsOverdue = table.Column<bool>(type: "boolean", nullable: true)
                 },
                 constraints: table =>
                 {

@@ -5,14 +5,6 @@ namespace restapi_crud_practice.Mapping
 {
     public static class BookMapping
     {
-        public static Book ToEntity(this CreateBookDto book)
-        {
-            return new Book()
-            {
-                BookName = book.BookName,
-                ReleaseDate = book.ReleaseDate
-            };
-        }
         public static BookSummaryDto ToBookSummaryDto(this Book book)
         {
             return new(
@@ -28,6 +20,14 @@ namespace restapi_crud_practice.Mapping
                 book.BookName,
                 book.ReleaseDate
             );
+        }
+        public static Book ToEntity(this CreateBookDto book)
+        {
+            return new Book()
+            {
+                BookName = book.BookName,
+                ReleaseDate = book.ReleaseDate
+            };
         }
         public static Book ToEntity(this UpdateBookDto book, int id)
         {

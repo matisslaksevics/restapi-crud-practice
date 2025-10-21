@@ -5,41 +5,40 @@ namespace restapi_crud_practice.Mapping
 {
     public static class ClientMapping
     {
-        public static Client ToEntity(this CreateClientDto client) 
-        {
-            return new Client()
-            {
-                FirstName = client.FirstName,
-                LastName = client.LastName,
-                Email = client.Email
-            };
-        }
         public static ClientSummaryDto ToClientSummaryDto(this Client client)
         {
             return new(
                 client.Id,
-                client.FirstName,
-                client.LastName,
-                client.Email
+                client.Username,
+                client.Role,
+                client.PasswordChangedAt
             );
         }
         public static ClientDetailsDto ToClientDetailsDto(this Client client)
         {
             return new(
                 client.Id,
-                client.FirstName,
-                client.LastName,
-                client.Email
+                client.Username,
+                client.Role,
+                client.PasswordChangedAt
             );
         }
-        public static Client ToEntity(this UpdateClientDto client, int id)
+        public static Client ToEntity(this CreateClientDto client)
+        {
+            return new Client()
+            {
+                Username = client.Username,
+                Role = client.Role,
+                PasswordChangedAt = client.PasswordChangedAt
+            };
+        }
+        public static Client ToEntity(this UpdateClientDto client, Guid id)
         {
             return new Client()
             {
                 Id = id,
-                FirstName = client.FirstName,
-                LastName = client.LastName,
-                Email = client.Email
+                Username = client.Username,
+                Role = client.Role
             };
         }
     }
