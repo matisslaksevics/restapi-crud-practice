@@ -334,7 +334,7 @@ namespace restapi_crud_practice.Controllers
         }
 
         // PUT /auth/admin/change-role
-        [Authorize(Roles="Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("admin/change-role")]
         public async Task<IActionResult> ChangeUserRole([FromBody] ChangeUserRoleDto body)
         {
@@ -355,7 +355,7 @@ namespace restapi_crud_practice.Controllers
                 {
                     return BadRequest("Could not change user role.");
                 }
-                else 
+                else
                 {
                     logger.LogInformation("PUT ChangeUserRole successful for user {ClientId}", clientId);
                     return NoContent();

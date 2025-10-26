@@ -1,0 +1,120 @@
+import { createContext, useContext, useState, useEffect } from 'react'
+import type { User, AuthResponse, UserProfileDto } from '../types'
+import api from '../services/api'
+
+interface AuthContextType {
+  user: User | null
+  login: (username: string, password: string) => Promise<void>
+  logout: () => void
+  isLoading: boolean
+}
+
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  const checkAuth = async () => {
+    const accessToken = localStorage.getItem('accessToken')
+    
+    if (!accessToken) {
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      console.log('Checking authentication with existing token...')
+      await fetchUser()
+    } catch (error) {
+      console.log('Auto-login failed, clearing tokens')
+      clearTokens()
+      setUser(null)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const fetchUser = async () => {
+    try {
+      console.log('Fetching user profile...')
+      const response = await api.get<UserProfileDto>('/auth/profile')
+      if (!response.data.username) {
+        console.error('No username in profile response!')
+        throw new Error('Invalid user data received')
+      }
+      
+      const userData: User = {
+        id: '', 
+        username: response.data.username,
+        role: response.data.role
+      }
+      setUser(userData)
+    } catch (error) {
+      console.log('Failed to fetch user profile')
+      throw error
+    }
+  }
+
+  const login = async (username: string, password: string) => {
+    try {
+      console.log('Attempting login...')
+      const response = await api.post<AuthResponse>('/auth/login', { 
+        username,
+        password 
+      })
+      
+      const { accessToken, refreshToken } = response.data
+      
+      localStorage.setItem('accessToken', accessToken)
+      localStorage.setItem('refreshToken', refreshToken)
+      
+      await fetchUser()
+    } catch (error) {
+      clearTokens()
+      throw error
+    }
+  }
+
+  const logout = async () => {
+    try {
+      await api.post('/auth/signout')
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      clearTokens()
+      setUser(null)
+    }
+  }
+
+  const clearTokens = () => {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+  }
+
+  useEffect(() => {
+  console.log('User state changed:', user)
+  console.log('Access token in localStorage:', localStorage.getItem('accessToken'))
+}, [user])
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+
+
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}

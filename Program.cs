@@ -69,6 +69,18 @@ try
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("AppSettings"));
     builder.Services.AddScoped<IJwtSettingsService, JwtSettingsService>();
 
+    builder.Services.AddCors(options =>
+    {
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+    });
+
     builder.Services.AddSwaggerGen(c =>
     {
         c.SwaggerDoc("v1", new OpenApiInfo
@@ -135,6 +147,7 @@ try
     });
 
     app.UseRouting();
+    app.UseCors("AllowFrotend");
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();

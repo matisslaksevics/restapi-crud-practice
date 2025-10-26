@@ -41,7 +41,7 @@ namespace restapi_crud_practice.Services.SAuth
         public async Task<Client?> RegisterAsync(UserDto request)
         {
             var userExists = await _authRepository.GetClientByUsernameAsync(request.Username);
-            if (userExists is null)
+            if (userExists is not null)
             {
                 return null;
             }
