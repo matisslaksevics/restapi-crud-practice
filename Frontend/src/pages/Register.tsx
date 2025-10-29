@@ -1,60 +1,62 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const Login = () => {
-  const [username, setUsername] = useState('') 
+const Register = () => {
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const { user, login, isLoading } = useAuth()
+  const { register, isLoading } = useAuth()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    if (user) {
-      console.log('User already authenticated, redirecting to dashboard')
-      navigate('/', { replace: true })
-    }
-  }, [user, navigate])
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    
-    try {
-      await login(username, password)
-      console.log('Login successful, redirecting to dashboard')
-      navigate('/', { replace: true })
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long')
+      return
+    }
+
+     try {
+      await register(username, password)
+      alert('Registration successful! Please login with your new account.')
+      navigate('/login')
     } catch (error: any) {
-      console.log('Login error:', error)
+      console.error('Registration error:', error)
       const errorMessage = error.response?.data || 
         error.response?.statusText || 
         error.message || 
-        'Login failed!'
-      setError(`Login failed: ${errorMessage}`)
+        'Registration failed!'
+      setError(errorMessage)
     }
   }
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>Login</h1>
+        <h1 style={styles.title}>Register</h1>
         
-        {error && <div style={styles.error}>{error}</div>}
+        {error && (
+          <div style={styles.error}>
+            {error}
+          </div>
+        )}
         
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
             <input
-              type="text"  
+              type="text"
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               style={styles.input}
               required
+              minLength={3}
             />
           </div>
           
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
             <input
               type="password"
               placeholder="Password"
@@ -62,6 +64,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               style={styles.input}
               required
+              minLength={6}
             />
           </div>
           
@@ -70,17 +73,15 @@ const Login = () => {
             disabled={isLoading}
             style={{
               ...styles.button,
-              backgroundColor: isLoading ? '#9ca3af' : '#3b82f6'
+              backgroundColor: isLoading ? '#9ca3af' : '#10b981'
             }}
           >
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? 'Registering...' : 'Register'}
           </button>
         </form>
-        
-        <div style={styles.info}>
-        </div>
-        <div style={styles.registerLink}>
-          <p>Don't have an account? <Link to="/register" style={styles.link}>Register here</Link></p>
+
+        <div style={styles.loginLink}>
+          <p>Already have an account? <Link to="/login" style={styles.link}>Login here</Link></p>
         </div>
       </div>
     </div>
@@ -106,7 +107,8 @@ const styles = {
     fontSize: '1.5rem',
     fontWeight: 'bold',
     marginBottom: '1.5rem',
-    textAlign: 'center' as const
+    textAlign: 'center' as const,
+    color: '#065f46'
   },
   error: {
     backgroundColor: '#fee2e2',
@@ -129,27 +131,21 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     fontSize: '1rem',
-    cursor: 'pointer' as const
+    cursor: 'pointer' as const,
+    fontWeight: 'bold' as const
   },
-  info: {
-    marginTop: '1.5rem',
-    padding: '1rem',
-    backgroundColor: '#f0f9ff',
-    borderRadius: '4px',
-    fontSize: '0.875rem'
-  },
-  registerLink: {
+  loginLink: {
     marginTop: '1.5rem',
     textAlign: 'center' as const,
     padding: '1rem',
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#f0f9ff',
     borderRadius: '4px'
   },
   link: {
-    color: '#10b981',
+    color: '#3b82f6',
     textDecoration: 'none',
     fontWeight: 'bold' as const
   }
 }
 
-export default Login
+export default Register

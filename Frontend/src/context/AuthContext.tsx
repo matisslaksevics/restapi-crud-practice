@@ -5,6 +5,7 @@ import api from '../services/api'
 interface AuthContextType {
   user: User | null
   login: (username: string, password: string) => Promise<void>
+  register: (username: string, password: string) => Promise<void>
   logout: () => void
   isLoading: boolean
 }
@@ -81,6 +82,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
+  const register = async (username: string, password: string) => {
+    try {
+      console.log('Attempting registration...')
+      const response = await api.post('/auth/register', {
+        username,
+        password
+      })
+    
+      console.log('Registration successful:', response.data)
+    } catch (error) {
+      console.log('Registration failed:', error)
+      throw error
+    }
+  }
+
   const logout = async () => {
     try {
       await api.post('/auth/signout')
@@ -103,7 +119,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 }, [user])
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   )
