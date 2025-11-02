@@ -10,7 +10,6 @@ interface AuthContextType {
   isLoading: boolean
 }
 
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -40,28 +39,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(false)
     }
   }
-
   const fetchUser = async () => {
     try {
       console.log('Fetching user profile...')
       const response = await api.get<UserProfileDto>('/auth/profile')
-      if (!response.data.username) {
+      const userData = response.data;
+    
+      if (!userData.username) {
         console.error('No username in profile response!')
         throw new Error('Invalid user data received')
       }
-      
-      const userData: User = {
-        id: '', 
-        username: response.data.username,
-        role: response.data.role
+    
+  
+      const userObj: User = {
+        id: '',
+        username: userData.username,
+        role: userData.role
       }
-      setUser(userData)
+      setUser(userObj)
     } catch (error) {
       console.log('Failed to fetch user profile')
       throw error
     }
   }
-
   const login = async (username: string, password: string) => {
     try {
       console.log('Attempting login...')
@@ -114,9 +114,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   useEffect(() => {
-  console.log('User state changed:', user)
-  console.log('Access token in localStorage:', localStorage.getItem('accessToken'))
-}, [user])
+    console.log('User state changed:', user)
+    console.log('Access token in localStorage:', localStorage.getItem('accessToken'))
+  }, [user])
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
@@ -124,8 +124,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     </AuthContext.Provider>
   )
 }
-
-
 
 export const useAuth = () => {
   const context = useContext(AuthContext)

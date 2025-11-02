@@ -81,26 +81,26 @@ namespace restapi_crud_practice.Controllers
         // DELETE /clients/{id}
         [Authorize(Roles = "Admin")]
         [HttpDelete("admin/delete-client/{id}")]
-        public async Task<IActionResult> DeleteClient(Guid clientId)
+        public async Task<IActionResult> DeleteClient(Guid id)
         {
             var adminId = userContext.GetUserId(User);
             logger.LogInformation(
                 "DELETE DeleteClient requested for ID {ClientId} by admin {AdminId}",
-                clientId,
+                id,
                 adminId);
 
             try
             {
-                var (success, rowsAffected) = await clientService.DeleteClientAsync(clientId);
+                var (success, rowsAffected) = await clientService.DeleteClientAsync(id);
 
                 if (!success)
                 {
-                    return NotFound($"Client with ID {clientId} not found.");
+                    return NotFound($"Client with ID {id} not found.");
                 }
 
                 logger.LogInformation(
                     "DELETE DeleteClient successful for admin {AdminId}. Rows affected: {RowsAffected}",
-                    clientId, rowsAffected);
+                    id, rowsAffected);
 
                 return Ok(new { Message = $"Successfully deleted {rowsAffected} client(s)." });
             }
