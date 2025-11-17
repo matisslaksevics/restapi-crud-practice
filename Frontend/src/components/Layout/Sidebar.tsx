@@ -1,64 +1,36 @@
-import type { User } from '../../types/index.ts';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   activeView: string;
   onViewChange: (view: string) => void;
-  user: User | null;
 }
 
-const Sidebar = ({ activeView, onViewChange, user }: SidebarProps) => {
+const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
+  const { user } = useAuth();
   const isAdmin = user?.role === 'Admin';
 
-  const userMenuItems = [
+  const menuItems = [
     { id: 'profile', label: 'My Profile', icon: '👤' },
   ];
 
-  const adminMenuItems = isAdmin ? [
-    { id: 'admin-clients', label: 'Client Management', icon: '👥' },
-  ] : [];
-
-  const allMenuItems = [...userMenuItems, ...adminMenuItems];
+  if (isAdmin) {
+    menuItems.push({ id: 'admin-clients', label: 'Client Management', icon: '👥' });
+  }
 
   return (
-    <div style={{
-      width: '250px',
-      backgroundColor: 'white',
-      boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)',
-      padding: '1rem 0',
-      minHeight: 'calc(100vh - 80px)'
-    }}>
+    <div className="w-64 bg-white shadow-lg py-4 min-h-[calc(100vh-80px)]">
       <nav>
-        {allMenuItems.map((item) => (
+        {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => onViewChange(item.id)}
-            style={{
-              width: '100%',
-              padding: '0.75rem 1.5rem',
-              border: 'none',
-              backgroundColor: activeView === item.id ? '#3b82f6' : 'transparent',
-              color: activeView === item.id ? 'white' : '#374151',
-              textAlign: 'left',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              if (activeView !== item.id) {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeView !== item.id) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }
-            }}
+            className={`w-full px-6 py-3 flex items-center gap-3 text-sm font-medium transition-colors ${
+              activeView === item.id
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
           >
-            <span style={{ fontSize: '1rem' }}>{item.icon}</span>
+            <span className="text-base">{item.icon}</span>
             {item.label}
           </button>
         ))}

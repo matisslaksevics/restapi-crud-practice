@@ -16,7 +16,6 @@ const Login = () => {
     }
   }, [user, navigate])
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -36,31 +35,35 @@ const Login = () => {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Login</h1>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
         
-        {error && <div style={styles.error}>{error}</div>}
+        {error && (
+          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+            {error}
+          </div>
+        )}
         
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
+          <div className="mb-4">
             <input
               type="text"  
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              style={styles.input}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
           
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div className="mb-6">
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -68,88 +71,26 @@ const Login = () => {
           <button
             type="submit"
             disabled={isLoading}
-            style={{
-              ...styles.button,
-              backgroundColor: isLoading ? '#9ca3af' : '#3b82f6'
-            }}
+            className={`w-full text-white py-2 px-4 rounded-md font-medium transition-colors ${
+              isLoading 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-blue-500 hover:bg-blue-600'
+            }`}
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
         
-        <div style={styles.info}>
-        </div>
-        <div style={styles.registerLink}>
-          <p>Don't have an account? <Link to="/register" style={styles.link}>Register here</Link></p>
+        <div className="mt-6 text-center p-4 bg-green-50 rounded-md">
+          <p>Don't have an account? 
+            <Link to="/register" className="text-green-500 font-bold hover:text-green-600 ml-1">
+              Register here
+            </Link>
+          </p>
         </div>
       </div>
     </div>
   )
-}
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f3f4f6',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center' as const
-  },
-  card: {
-    backgroundColor: 'white',
-    padding: '2rem',
-    borderRadius: '8px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    width: '400px'
-  },
-  title: {
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
-    marginBottom: '1.5rem',
-    textAlign: 'center' as const
-  },
-  error: {
-    backgroundColor: '#fee2e2',
-    color: '#dc2626',
-    padding: '0.75rem',
-    borderRadius: '4px',
-    marginBottom: '1rem'
-  },
-  input: {
-    width: '100%',
-    padding: '0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    fontSize: '1rem'
-  },
-  button: {
-    width: '100%',
-    color: 'white',
-    padding: '0.75rem',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '1rem',
-    cursor: 'pointer' as const
-  },
-  info: {
-    marginTop: '1.5rem',
-    padding: '1rem',
-    backgroundColor: '#f0f9ff',
-    borderRadius: '4px',
-    fontSize: '0.875rem'
-  },
-  registerLink: {
-    marginTop: '1.5rem',
-    textAlign: 'center' as const,
-    padding: '1rem',
-    backgroundColor: '#f0fdf4',
-    borderRadius: '4px'
-  },
-  link: {
-    color: '#10b981',
-    textDecoration: 'none',
-    fontWeight: 'bold' as const
-  }
 }
 
 export default Login

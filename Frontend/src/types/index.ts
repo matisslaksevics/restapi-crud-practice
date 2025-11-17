@@ -1,5 +1,5 @@
 export interface User {
-  id?: string;
+  id: string;
   username: string;
   role: string;
 }
@@ -15,6 +15,7 @@ export interface AuthResponse {
 }
 
 export interface UserProfileDto {
+  id: string;
   username: string;
   role: string;
 }
@@ -35,6 +36,7 @@ export interface ClientSummaryDto {
   email?: string;
   firstName?: string;
   lastName?: string;
+  role?: string;
 }
 
 export interface UpdateClientDto {

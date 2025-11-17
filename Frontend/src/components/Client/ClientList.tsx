@@ -11,89 +11,51 @@ interface ClientListProps {
 const ClientList = ({ clients, onEdit, onDelete, onChangePassword, onChangeRole }: ClientListProps) => {
   if (clients.length === 0) {
     return (
-      <div style={{
-        textAlign: 'center',
-        padding: '2rem',
-        color: '#6b7280'
-      }}>
+      <div className="text-center py-8 text-gray-500">
         No clients found
       </div>
     );
   }
 
   return (
-    <div style={{
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-      overflow: 'hidden'
-    }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <table className="w-full border-collapse">
         <thead>
-          <tr style={{ backgroundColor: '#f8fafc' }}>
-            <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>Username</th>
-            <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>Actions</th>
+          <tr className="bg-gray-50">
+            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Username</th>
+            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
           </tr>
         </thead>
         <tbody>
           {clients.map((client, index) => (
-            <tr key={client.id} style={{ borderBottom: index < clients.length - 1 ? '1px solid #e5e7eb' : 'none' }}>
-              <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem' }}>{client.username}</td>
-              <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem' }}>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <tr 
+              key={client.id} 
+              className={index < clients.length - 1 ? 'border-b border-gray-200' : ''}
+            >
+              <td className="px-4 py-3 text-sm">{client.username}</td>
+              <td className="px-4 py-3 text-sm">
+                <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => onEdit(client)}
-                    style={{
-                      padding: '0.25rem 0.5rem',
-                      backgroundColor: '#3b82f6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '0.75rem'
-                    }}
+                    className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => onChangePassword(client)}
-                    style={{
-                      padding: '0.25rem 0.5rem',
-                      backgroundColor: '#10b981',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '0.75rem'
-                    }}
+                    className="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
                   >
                     Change Password
                   </button>
                   <button
                     onClick={() => onChangeRole(client)}
-                    style={{
-                      padding: '0.25rem 0.5rem',
-                      backgroundColor: '#8b5cf6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '0.75rem'
-                    }}
+                    className="px-2 py-1 bg-purple-500 text-white text-xs rounded hover:bg-purple-600 transition-colors"
                   >
                     Change Role
                   </button>
                   <button
                     onClick={() => onDelete(client.id)}
-                    style={{
-                      padding: '0.25rem 0.5rem',
-                      backgroundColor: '#ef4444',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '0.75rem'
-                    }}
+                    className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
                   >
                     Delete
                   </button>

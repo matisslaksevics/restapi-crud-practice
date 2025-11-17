@@ -3,24 +3,20 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/dashboard'
+import LoadingSpinner from './components/Common/LoadingSpinner'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth()
   
-  console.log('ProtectedRoute - user:', user, 'isLoading:', isLoading)
-  
   if (isLoading) {
-    console.log('ProtectedRoute - showing loading')
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner message="Loading..." />
+      </div>
+    )
   }
   
-  if (user) {
-    console.log('ProtectedRoute - user exists, rendering children')
-    return <>{children}</>
-  } else {
-    console.log('ProtectedRoute - no user, redirecting to login')
-    return <Navigate to="/login" />
-  }
+  return user ? <>{children}</> : <Navigate to="/login" replace />
 }
 
 function App() {
@@ -35,7 +31,7 @@ function App() {
               <Dashboard />
             </ProtectedRoute>
           } />
-          <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -33,36 +33,36 @@ const Register = () => {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Register</h1>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center text-green-800">Register</h1>
         
         {error && (
-          <div style={styles.error}>
+          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
             {error}
           </div>
         )}
         
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
+          <div className="mb-4">
             <input
               type="text"
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              style={styles.input}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               required
               minLength={3}
             />
           </div>
           
-          <div style={{ marginBottom: '1rem' }}>
+          <div className="mb-4">
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               required
               minLength={6}
             />
@@ -71,81 +71,26 @@ const Register = () => {
           <button
             type="submit"
             disabled={isLoading}
-            style={{
-              ...styles.button,
-              backgroundColor: isLoading ? '#9ca3af' : '#10b981'
-            }}
+            className={`w-full text-white py-2 px-4 rounded-md font-bold transition-colors ${
+              isLoading 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-green-500 hover:bg-green-600'
+            }`}
           >
             {isLoading ? 'Registering...' : 'Register'}
           </button>
         </form>
 
-        <div style={styles.loginLink}>
-          <p>Already have an account? <Link to="/login" style={styles.link}>Login here</Link></p>
+        <div className="mt-6 text-center p-4 bg-blue-50 rounded-md">
+          <p>Already have an account? 
+            <Link to="/login" className="text-blue-500 font-bold hover:text-blue-600 ml-1">
+              Login here
+            </Link>
+          </p>
         </div>
       </div>
     </div>
   )
-}
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f3f4f6',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center' as const
-  },
-  card: {
-    backgroundColor: 'white',
-    padding: '2rem',
-    borderRadius: '8px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    width: '400px'
-  },
-  title: {
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
-    marginBottom: '1.5rem',
-    textAlign: 'center' as const,
-    color: '#065f46'
-  },
-  error: {
-    backgroundColor: '#fee2e2',
-    color: '#dc2626',
-    padding: '0.75rem',
-    borderRadius: '4px',
-    marginBottom: '1rem'
-  },
-  input: {
-    width: '100%',
-    padding: '0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '4px',
-    fontSize: '1rem'
-  },
-  button: {
-    width: '100%',
-    color: 'white',
-    padding: '0.75rem',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '1rem',
-    cursor: 'pointer' as const,
-    fontWeight: 'bold' as const
-  },
-  loginLink: {
-    marginTop: '1.5rem',
-    textAlign: 'center' as const,
-    padding: '1rem',
-    backgroundColor: '#f0f9ff',
-    borderRadius: '4px'
-  },
-  link: {
-    color: '#3b82f6',
-    textDecoration: 'none',
-    fontWeight: 'bold' as const
-  }
 }
 
 export default Register

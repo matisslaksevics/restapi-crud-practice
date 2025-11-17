@@ -36,6 +36,7 @@ export const clientService = {
       return response.data;
     }
   },
+  
   async checkPassword(): Promise<any> {
     const response = await api.get('/auth/check-password');
     return response.data;

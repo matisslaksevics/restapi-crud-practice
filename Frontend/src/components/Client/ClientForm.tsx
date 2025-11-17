@@ -48,29 +48,14 @@ const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: ClientFor
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{
-      backgroundColor: 'white',
-      padding: '1.5rem',
-      borderRadius: '8px',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-    }}>
-      <h3 style={{
-        fontSize: '1.25rem',
-        fontWeight: 'bold',
-        marginBottom: '1rem'
-      }}>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm mb-8">
+      <h3 className="text-xl font-bold mb-4">
         Edit Client
       </h3>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
-          <label style={{
-            display: 'block',
-            marginBottom: '0.5rem',
-            fontWeight: '500',
-            color: '#374151',
-            fontSize: '0.875rem'
-          }}>
+          <label className="block mb-2 font-medium text-sm text-gray-700">
             Username
           </label>
           <input
@@ -78,24 +63,12 @@ const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: ClientFor
             name="username"
             value={formData.username}
             onChange={handleChange}
-            style={{
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '4px',
-              fontSize: '0.875rem'
-            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label style={{
-            display: 'block',
-            marginBottom: '0.5rem',
-            fontWeight: '500',
-            color: '#374151',
-            fontSize: '0.875rem'
-          }}>
+          <label className="block mb-2 font-medium text-sm text-gray-700">
             Email
           </label>
           <input
@@ -103,26 +76,14 @@ const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: ClientFor
             name="email"
             value={formData.email}
             onChange={handleChange}
-            style={{
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '4px',
-              fontSize: '0.875rem'
-            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
-          <label style={{
-            display: 'block',
-            marginBottom: '0.5rem',
-            fontWeight: '500',
-            color: '#374151',
-            fontSize: '0.875rem'
-          }}>
+          <label className="block mb-2 font-medium text-sm text-gray-700">
             First Name
           </label>
           <input
@@ -130,24 +91,12 @@ const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: ClientFor
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            style={{
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '4px',
-              fontSize: '0.875rem'
-            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label style={{
-            display: 'block',
-            marginBottom: '0.5rem',
-            fontWeight: '500',
-            color: '#374151',
-            fontSize: '0.875rem'
-          }}>
+          <label className="block mb-2 font-medium text-sm text-gray-700">
             Last Name
           </label>
           <input
@@ -155,46 +104,28 @@ const ClientForm = ({ client, onSubmit, onCancel, isLoading = false }: ClientFor
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
-            style={{
-              width: '100%',
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '4px',
-              fontSize: '0.875rem'
-            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+      <div className="flex gap-2 justify-end">
         <button
           type="button"
           onClick={onCancel}
           disabled={isLoading}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#6b7280',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            opacity: isLoading ? 0.5 : 1
-          }}
+          className={`px-4 py-2 text-white rounded-md transition-colors ${
+            isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-500 hover:bg-gray-600'
+          }`}
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isLoading}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            opacity: isLoading ? 0.5 : 1
-          }}
+          className={`px-4 py-2 text-white rounded-md transition-colors ${
+            isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+          }`}
         >
           {isLoading ? 'Saving...' : 'Update Client'}
         </button>
