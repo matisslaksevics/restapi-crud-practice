@@ -4,6 +4,7 @@ import MainLayout from '../components/Layout/MainLayout';
 import ProfilePage from './Profile';
 import ClientManagement from './ClientManagement';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
+import Unauthorized from './Unauthorized';
 
 const Dashboard = () => {
   const { user, isLoading } = useAuth();
@@ -12,6 +13,14 @@ const Dashboard = () => {
   const renderActiveView = () => {
     if (isLoading) {
       return <LoadingSpinner message="Loading..." />;
+    }
+
+    if (!user) {
+      return <div>User not found</div>;
+    }
+
+    if (activeView === 'admin-clients' && user.role !== 'Admin') {
+      return <Unauthorized />;
     }
 
     switch (activeView) {

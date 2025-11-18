@@ -6,10 +6,13 @@ import ChangePasswordModel from '../components/Client/ChangePasswordModel';
 import ChangeRoleModel from '../components/Client/ChangeRoleModel';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 import ErrorMessage from '../components/Common/ErrorMessage';
+import Unauthorized from './Unauthorized';
+import { useAuth } from '../context/AuthContext';
 import type { ClientSummaryDto, UpdateClientDto } from '../types/index.ts';
 import { clientService } from '../services/ClientService';
 
 const ClientManagement = () => {
+  const { user } = useAuth();
   const [clients, setClients] = useState<ClientSummaryDto[]>([]);
   const [editingClient, setEditingClient] = useState<ClientSummaryDto | null>(null);
   const [selectedClient, setSelectedClient] = useState<ClientSummaryDto | null>(null);
@@ -18,6 +21,10 @@ const ClientManagement = () => {
   const [showRoleForm, setShowRoleForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!user || user.role !== 'Admin') {
+    return <Unauthorized />;
+  }
 
   useEffect(() => {
     loadClients();
