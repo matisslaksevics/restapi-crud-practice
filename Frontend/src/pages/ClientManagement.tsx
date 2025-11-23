@@ -21,6 +21,7 @@ const ClientManagement = () => {
   const [showRoleForm, setShowRoleForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateMode, setIsCreateMode] = useState(false);
 
   if (!user || user.role !== 'Admin') {
     return <Unauthorized />;
@@ -39,6 +40,22 @@ const ClientManagement = () => {
     } catch (error) {
       console.error('Failed to load clients:', error);
       setError('Failed to load clients');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateClient = async (clientData: UpdateClientDto) => {
+    try {
+      setIsLoading(true);
+      await clientService.updateClient('new', clientData);
+      await loadClients(); 
+      setShowClientForm(false);
+      setIsCreateMode(false);
+      alert('Client created successfully');
+    } catch (error) {
+      console.error('Failed to create client:', error);
+      alert('Failed to create client');
     } finally {
       setIsLoading(false);
     }
@@ -108,8 +125,15 @@ const ClientManagement = () => {
     }
   };
 
+  const handleAddClient = () => {
+    setEditingClient(null);
+    setIsCreateMode(true);
+    setShowClientForm(true);
+  };
+
   const handleEditClient = (client: ClientSummaryDto) => {
     setEditingClient(client);
+    setIsCreateMode(false);
     setShowClientForm(true);
   };
 
@@ -129,22 +153,36 @@ const ClientManagement = () => {
     setShowRoleForm(false);
     setEditingClient(null);
     setSelectedClient(null);
+    setIsCreateMode(false);
+  };
+
+  const handleFormSubmit = (clientData: UpdateClientDto) => {
+    if (isCreateMode) {
+      handleCreateClient(clientData);
+    } else {
+      handleUpdateClient(clientData);
+    }
   };
 
   return (
     <div>
-      <ClientHeader totalClients={clients.length} />
+      <ClientHeader 
+        totalClients={clients.length} 
+        onAddClient={handleAddClient}
+        isAdmin={true}
+      />
 
       {error && (
         <ErrorMessage message={error} onRetry={loadClients} />
       )}
 
-      {showClientForm && editingClient && (
+      {showClientForm && (
         <ClientForm
           client={editingClient}
-          onSubmit={handleUpdateClient}
+          onSubmit={handleFormSubmit}
           onCancel={handleCancelForm}
           isLoading={isLoading}
+          isCreate={isCreateMode}
         />
       )}
 

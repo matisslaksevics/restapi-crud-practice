@@ -9,62 +9,72 @@ interface ClientListProps {
 }
 
 const ClientList = ({ clients, onEdit, onDelete, onChangePassword, onChangeRole }: ClientListProps) => {
-  if (clients.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        No clients found
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-50">
-            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Username</th>
-            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+    <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Username
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Role
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
+            </th>
           </tr>
         </thead>
-        <tbody>
-          {clients.map((client, index) => (
-            <tr 
-              key={client.id} 
-              className={index < clients.length - 1 ? 'border-b border-gray-200' : ''}
-            >
-              <td className="px-4 py-3 text-sm">{client.username}</td>
-              <td className="px-4 py-3 text-sm">
-                <div className="flex gap-2 flex-wrap">
-                  <button
-                    onClick={() => onEdit(client)}
-                    className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onChangePassword(client)}
-                    className="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors"
-                  >
-                    Change Password
-                  </button>
-                  <button
-                    onClick={() => onChangeRole(client)}
-                    className="px-2 py-1 bg-purple-500 text-white text-xs rounded hover:bg-purple-600 transition-colors"
-                  >
-                    Change Role
-                  </button>
-                  <button
-                    onClick={() => onDelete(client.id)}
-                    className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {clients.map((client) => (
+            <tr key={client.id} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm font-medium text-gray-900">{client.username}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  client.role === 'Admin' 
+                    ? 'bg-purple-100 text-purple-800' 
+                    : 'bg-green-100 text-green-800'
+                }`}>
+                  {client.role}
+                </span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                <button
+                  onClick={() => onEdit(client)}
+                  className="text-blue-600 hover:text-blue-900"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => onChangePassword(client)}
+                  className="text-green-600 hover:text-green-900"
+                >
+                  Change Password
+                </button>
+                <button
+                  onClick={() => onChangeRole(client)}
+                  className="text-orange-600 hover:text-orange-900"
+                >
+                  Change Role
+                </button>
+                <button
+                  onClick={() => onDelete(client.id)}
+                  className="text-red-600 hover:text-red-900"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {clients.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          No clients available
+        </div>
+      )}
     </div>
   );
 };

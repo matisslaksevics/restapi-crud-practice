@@ -13,8 +13,13 @@ const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
     { id: 'profile', label: 'My Profile', icon: '👤' },
   ];
 
+  menuItems.push({ id: 'books-list', label: 'Books List', icon: '📚' });
+
   if (isAdmin) {
-    menuItems.push({ id: 'admin-clients', label: 'Client Management', icon: '👥' });
+    menuItems.push(
+      { id: 'admin-clients', label: 'Client Management', icon: '👥' },
+      { id: 'book-management', label: 'Book Management', icon: '📖' }
+    );
   }
 
   return (

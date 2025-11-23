@@ -60,3 +60,25 @@ export interface ChangeUserRoleDto {
   id: string;
   newRole: string;
 }
+
+export interface BookSummaryDto {
+  id: number;
+  bookName: string;
+  releaseDate: string;
+}
+
+export interface BookDetailsDto {
+  id: number;
+  bookName: string;
+  releaseDate: string;
+}
+
+export interface CreateBookDto {
+  bookName: string;
+  releaseDate: string;
+}
+
+export interface UpdateBookDto {
+  bookName: string;
+  releaseDate: string;
+}

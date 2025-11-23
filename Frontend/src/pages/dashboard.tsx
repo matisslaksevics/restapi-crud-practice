@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import MainLayout from '../components/Layout/MainLayout';
 import ProfilePage from './Profile';
 import ClientManagement from './ClientManagement';
+import BookManagement from './BookManagement';
+import BooksList from './BooksList';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 import Unauthorized from './Unauthorized';
 
@@ -19,7 +21,9 @@ const Dashboard = () => {
       return <div>User not found</div>;
     }
 
-    if (activeView === 'admin-clients' && user.role !== 'Admin') {
+    const isAdmin = user.role === 'Admin';
+    
+    if ((activeView === 'admin-clients' || activeView === 'book-management') && !isAdmin) {
       return <Unauthorized />;
     }
 
@@ -28,6 +32,10 @@ const Dashboard = () => {
         return <ProfilePage />;
       case 'admin-clients':
         return <ClientManagement />;
+      case 'book-management':
+        return <BookManagement />;
+      case 'books-list': 
+        return <BooksList />;
       default:
         return <ProfilePage />;
     }
