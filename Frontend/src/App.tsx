@@ -26,11 +26,44 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={
+          <Route path="/profile" element={
             <ProtectedRoute>
-              <Dashboard />
+              <Dashboard view="profile" />
             </ProtectedRoute>
           } />
+          
+          <Route path="/books-list" element={
+            <ProtectedRoute>
+              <Dashboard view="books-list" />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/my-borrows" element={
+            <ProtectedRoute>
+              <Dashboard view="my-borrows" />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin-clients" element={
+            <ProtectedRoute>
+              <Dashboard view="admin-clients" />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/book-management" element={
+            <ProtectedRoute>
+              <Dashboard view="book-management" />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin-borrows" element={
+            <ProtectedRoute>
+              <Dashboard view="admin-borrows" />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/" element={<Navigate to="/profile" replace />} />
+          <Route path="/dashboard/:view" element={<Navigate to="/:view" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

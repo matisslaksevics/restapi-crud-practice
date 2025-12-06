@@ -82,3 +82,41 @@ export interface UpdateBookDto {
   bookName: string;
   releaseDate: string;
 }
+
+export interface BorrowSummaryDto {
+  id: number;
+  client: string;
+  book: string;
+  borrowDate: string;
+  returnDate?: string;
+  isOverdue?: boolean;
+}
+
+export interface BorrowDetailsDto {
+  id: number;
+  clientId: string;
+  bookId: number;
+  borrowDate: string;
+  returnDate?: string;
+  isOverdue?: boolean;
+}
+
+export interface CreateBorrowDto {
+  clientId: string;
+  bookId: number;
+  borrowDate: string;
+  returnDate?: string;
+}
+
+export interface CreateUserBorrowDto {
+  bookId: number;
+  borrowDate: string;
+  returnDate?: string;
+}
+
+export interface UpdateBorrowDto {
+  clientId: string;
+  bookId: number;
+  borrowDate: string;
+  returnDate?: string;
+}

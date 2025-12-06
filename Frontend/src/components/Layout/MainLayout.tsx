@@ -5,15 +5,14 @@ import Sidebar from './Sidebar';
 interface MainLayoutProps {
   children: ReactNode;
   activeView: string;
-  onViewChange: (view: string) => void;
 }
 
-const MainLayout = ({ children, activeView, onViewChange }: MainLayoutProps) => {
+const MainLayout = ({ children, activeView }: MainLayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="max-w-7xl mx-auto px-4 flex">
-        <Sidebar activeView={activeView} onViewChange={onViewChange} />
+        <Sidebar activeView={activeView} />
         <main className="flex-1 p-8 min-h-[calc(100vh-80px)]">
           {children}
         </main>

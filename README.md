@@ -43,3 +43,5 @@ There you can see all the available endpoints and make API calls directly from t
 
 !!! It is required to register and login before making any API calls - since every single endpoint except the login and register ones require authentication !!!
 
+localStorage.clear();
+window.location.reload();

@@ -1,52 +1,52 @@
-import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import MainLayout from '../components/Layout/MainLayout';
 import ProfilePage from './Profile';
 import ClientManagement from './ClientManagement';
 import BookManagement from './BookManagement';
 import BooksList from './BooksList';
-import LoadingSpinner from '../components/Common/LoadingSpinner';
-import Unauthorized from './Unauthorized';
+import UserBorrows from './UserBorrows';
+import BorrowManagement from './BorrowManagement';
+import { useParams, Navigate } from 'react-router-dom';
 
-const Dashboard = () => {
-  const { user, isLoading } = useAuth();
-  const [activeView, setActiveView] = useState('profile');
+interface DashboardProps {
+  view: string;
+}
+
+const Dashboard = ({ view }: DashboardProps) => {
+  const { user } = useAuth();
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  const isAdmin = user.role === 'Admin';
+  
+  // Check authorization for admin-only views
+  if ((view === 'admin-clients' || view === 'book-management' || view === 'admin-borrows') && !isAdmin) {
+    return <Navigate to="/profile" replace />;
+  }
 
   const renderActiveView = () => {
-    if (isLoading) {
-      return <LoadingSpinner message="Loading..." />;
-    }
-
-    if (!user) {
-      return <div>User not found</div>;
-    }
-
-    const isAdmin = user.role === 'Admin';
-    
-    if ((activeView === 'admin-clients' || activeView === 'book-management') && !isAdmin) {
-      return <Unauthorized />;
-    }
-
-    switch (activeView) {
+    switch (view) {
       case 'profile':
         return <ProfilePage />;
       case 'admin-clients':
         return <ClientManagement />;
       case 'book-management':
         return <BookManagement />;
-      case 'books-list': 
+      case 'books-list':
         return <BooksList />;
+      case 'my-borrows':
+        return <UserBorrows />;
+      case 'admin-borrows':
+        return <BorrowManagement />;
       default:
-        return <ProfilePage />;
+        return <Navigate to="/profile" replace />;
     }
   };
 
-  if (!user && !isLoading) {
-    return null;
-  }
-
   return (
-    <MainLayout activeView={activeView} onViewChange={setActiveView}>
+    <MainLayout activeView={view}>
       {renderActiveView()}
     </MainLayout>
   );
